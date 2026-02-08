@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+model PrismaConnection {
+  name String @id
+}
+
+model SeedLog {
+  id        Int     @id @default(autoincrement())
+  name      String
+  completed Boolean @default(false)
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Admin {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Candidate {
+  id              Int          @id @default(autoincrement())
+  title           String       @db.VarChar(50)
+  first_name      String       @db.VarChar(255)
+  last_name       String       @db.VarChar(255)
+  number          Int
+  image_url       String       @db.VarChar(500)
+  party_id        Int
+  constituency_id Int
+  created_at      DateTime?    @default(now()) @db.Timestamp(6)
+  Constituency    Constituency @relation(fields: [constituency_id], references: [id], onUpdate: NoAction)
+  Party           Party        @relation(fields: [party_id], references: [id], onUpdate: NoAction)
+  Vote            Vote[]
+
+  @@unique([constituency_id, number])
+  @@index([constituency_id], map: "idx_candidate_constituency_id")
+  @@index([party_id], map: "idx_candidate_party_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Constituency {
+  id              Int         @id @default(autoincrement())
+  province        String      @db.VarChar(255)
+  district_number Int
+  is_closed       Boolean?    @default(false)
+  created_at      DateTime?   @default(now()) @db.Timestamp(6)
+  Candidate       Candidate[]
+  User            User[]
+
+  @@unique([province, district_number])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Party {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique @db.VarChar(255)
+  logo_url   String      @db.VarChar(500)
+  policy     String
+  created_at DateTime?   @default(now()) @db.Timestamp(6)
+  Candidate  Candidate[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model User {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  national_id     String       @unique @db.VarChar(13)
+  password        String       @db.VarChar(255)
+  title           String       @db.VarChar(50)
+  first_name      String       @db.VarChar(255)
+  last_name       String       @db.VarChar(255)
+  address         String
+  role            user_role?   @default(VOTER)
+  constituency_id Int
+  created_at      DateTime?    @default(now()) @db.Timestamp(6)
+  Constituency    Constituency @relation(fields: [constituency_id], references: [id], onUpdate: NoAction)
+  Vote            Vote?
+
+  @@index([constituency_id], map: "idx_user_constituency_id")
+  @@index([national_id], map: "idx_user_national_id")
+  @@index([role], map: "idx_user_role")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Vote {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String    @unique @db.Uuid
+  candidate_id Int
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+  Candidate    Candidate @relation(fields: [candidate_id], references: [id], onUpdate: NoAction)
+  User         User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([candidate_id], map: "idx_vote_candidate_id")
+  @@index([created_at], map: "idx_vote_created_at")
+  @@index([user_id], map: "idx_vote_user_id")
+}
+
+enum user_role {
+  VOTER
+  EC
+}

@@ -54,3 +54,5 @@ soucre/
 .nodemon.json
 .nyc_output/
 coverage/
+
+/src/generated/prisma

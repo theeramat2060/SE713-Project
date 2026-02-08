@@ -1,20 +1,19 @@
 import * as constituencyRepository from '../repositories/constituencyRepository';
 import * as partyRepository from '../repositories/partyRepository';
-
-interface ServiceResult<T> {
-    success: boolean;
-    data?: T;
-    error?: {
-        message: string;
-        code: number;
-    };
-}
+import {
+    ConstituencyResponse,
+    ConstituencyResultsResponse,
+    PartyResponse,
+    PartyDetailsResponse,
+    PartyOverviewResponse,
+    ServiceResult
+} from '../dto/publicDTO';
 
 const logPublicEvent = (event: string, data: Record<string, any>) => {
     console.log(`[PUBLIC] ${event}:`, {timestamp: new Date().toISOString(), ...data});
 };
 
-export const getConstituencies = async (): Promise<ServiceResult<any>> => {
+export const getConstituencies = async (): Promise<ServiceResult<ConstituencyResponse[]>> => {
     logPublicEvent('GET_CONSTITUENCIES', {});
     const constituencies = await constituencyRepository.getAllConstituencies();
     return {
@@ -23,7 +22,7 @@ export const getConstituencies = async (): Promise<ServiceResult<any>> => {
     };
 };
 
-export const getConstituencyResults = async (constituencyId: number): Promise<ServiceResult<any>> => {
+export const getConstituencyResults = async (constituencyId: number): Promise<ServiceResult<ConstituencyResultsResponse>> => {
     const constituency = await constituencyRepository.getConstituencyById(constituencyId);
 
     if (!constituency) {
@@ -52,7 +51,7 @@ export const getConstituencyResults = async (constituencyId: number): Promise<Se
     };
 };
 
-export const getParties = async (): Promise<ServiceResult<any>> => {
+export const getParties = async (): Promise<ServiceResult<PartyResponse[]>> => {
     logPublicEvent('GET_PARTIES', {});
     const parties = await partyRepository.getPartiesBasic();
     return {
@@ -61,7 +60,7 @@ export const getParties = async (): Promise<ServiceResult<any>> => {
     };
 };
 
-export const getPartyDetails = async (partyId: number): Promise<ServiceResult<any>> => {
+export const getPartyDetails = async (partyId: number): Promise<ServiceResult<PartyDetailsResponse>> => {
     const party = await partyRepository.getPartyWithCandidates(partyId);
 
     if (!party) {
@@ -82,7 +81,7 @@ export const getPartyDetails = async (partyId: number): Promise<ServiceResult<an
     };
 };
 
-export const getPartyOverview = async (): Promise<ServiceResult<any>> => {
+export const getPartyOverview = async (): Promise<ServiceResult<PartyOverviewResponse>> => {
     const closedConstituencies = await constituencyRepository.getClosedConstituencies();
     const parties: any[] = [];
 

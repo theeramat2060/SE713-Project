@@ -1,0 +1,269 @@
+/**
+ * Candidate Seed Data
+ * Political candidates (ผู้สมัคร)
+ */
+
+export interface CandidateSeedRecord {
+    title: string;
+    first_name: string;
+    last_name: string;
+    number: number;
+    image_url: string;
+    party_id: number;
+    constituency_id: number;
+    created_at: Date;
+}
+
+export const candidateSeedData: CandidateSeedRecord[] = [
+    // Bangkok Constituency 1 - 4 candidates
+    {
+        title: 'Mr.',
+        first_name: 'Somchai',
+        last_name: 'Jiravantana',
+        number: 1,
+        image_url: 'https://via.placeholder.com/200?text=Somchai',
+        party_id: 1,
+        constituency_id: 1,
+        created_at: new Date('2025-09-01T09:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Niran',
+        last_name: 'Suwannapong',
+        number: 2,
+        image_url: 'https://via.placeholder.com/200?text=Niran',
+        party_id: 2,
+        constituency_id: 1,
+        created_at: new Date('2025-09-01T10:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Pranee',
+        last_name: 'Kaewbuasai',
+        number: 3,
+        image_url: 'https://via.placeholder.com/200?text=Pranee',
+        party_id: 3,
+        constituency_id: 1,
+        created_at: new Date('2025-09-01T11:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Anand',
+        last_name: 'Ramnoi',
+        number: 4,
+        image_url: 'https://via.placeholder.com/200?text=Anand',
+        party_id: 4,
+        constituency_id: 1,
+        created_at: new Date('2025-09-01T12:00:00Z'),
+    },
+
+    // Bangkok Constituency 2 - 4 candidates
+    {
+        title: 'Mr.',
+        first_name: 'Wanchai',
+        last_name: 'Jittapong',
+        number: 1,
+        image_url: 'https://via.placeholder.com/200?text=Wanchai',
+        party_id: 2,
+        constituency_id: 2,
+        created_at: new Date('2025-09-02T09:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Siriporn',
+        last_name: 'Nakornpol',
+        number: 2,
+        image_url: 'https://via.placeholder.com/200?text=Siriporn',
+        party_id: 1,
+        constituency_id: 2,
+        created_at: new Date('2025-09-02T10:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Teerawat',
+        last_name: 'Mingkwan',
+        number: 3,
+        image_url: 'https://via.placeholder.com/200?text=Teerawat',
+        party_id: 3,
+        constituency_id: 2,
+        created_at: new Date('2025-09-02T11:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Nattaya',
+        last_name: 'Ruamsuk',
+        number: 4,
+        image_url: 'https://via.placeholder.com/200?text=Nattaya',
+        party_id: 5,
+        constituency_id: 2,
+        created_at: new Date('2025-09-02T12:00:00Z'),
+    },
+
+    // Bangkok Constituency 3 (CLOSED) - 4 candidates
+    {
+        title: 'Mr.',
+        first_name: 'Pradit',
+        last_name: 'Sangkot',
+        number: 1,
+        image_url: 'https://via.placeholder.com/200?text=Pradit',
+        party_id: 1,
+        constituency_id: 3,
+        created_at: new Date('2025-09-03T09:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Suphat',
+        last_name: 'Kamang',
+        number: 2,
+        image_url: 'https://via.placeholder.com/200?text=Suphat',
+        party_id: 2,
+        constituency_id: 3,
+        created_at: new Date('2025-09-03T10:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Janya',
+        last_name: 'Thepsan',
+        number: 3,
+        image_url: 'https://via.placeholder.com/200?text=Janya',
+        party_id: 3,
+        constituency_id: 3,
+        created_at: new Date('2025-09-03T11:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Kitti',
+        last_name: 'Phongsai',
+        number: 4,
+        image_url: 'https://via.placeholder.com/200?text=Kitti',
+        party_id: 4,
+        constituency_id: 3,
+        created_at: new Date('2025-09-03T12:00:00Z'),
+    },
+
+    // Chiang Mai Constituency 1 - 4 candidates
+    {
+        title: 'Mr.',
+        first_name: 'Damrong',
+        last_name: 'Muangthai',
+        number: 1,
+        image_url: 'https://via.placeholder.com/200?text=Damrong',
+        party_id: 3,
+        constituency_id: 4,
+        created_at: new Date('2025-09-04T09:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Sarit',
+        last_name: 'Jitmala',
+        number: 2,
+        image_url: 'https://via.placeholder.com/200?text=Sarit',
+        party_id: 1,
+        constituency_id: 4,
+        created_at: new Date('2025-09-04T10:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Oranuch',
+        last_name: 'Chaiwasin',
+        number: 3,
+        image_url: 'https://via.placeholder.com/200?text=Oranuch',
+        party_id: 2,
+        constituency_id: 4,
+        created_at: new Date('2025-09-04T11:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Somkiat',
+        last_name: 'Napaksin',
+        number: 4,
+        image_url: 'https://via.placeholder.com/200?text=Somkiat',
+        party_id: 5,
+        constituency_id: 4,
+        created_at: new Date('2025-09-04T12:00:00Z'),
+    },
+
+    // Chiang Mai Constituency 2 (CLOSED) - 4 candidates
+    {
+        title: 'Mr.',
+        first_name: 'Visut',
+        last_name: 'Kasemsan',
+        number: 1,
+        image_url: 'https://via.placeholder.com/200?text=Visut',
+        party_id: 2,
+        constituency_id: 5,
+        created_at: new Date('2025-09-05T09:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Duangchai',
+        last_name: 'Phatthanarak',
+        number: 2,
+        image_url: 'https://via.placeholder.com/200?text=Duangchai',
+        party_id: 1,
+        constituency_id: 5,
+        created_at: new Date('2025-09-05T10:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Pairoj',
+        last_name: 'Sukjarit',
+        number: 3,
+        image_url: 'https://via.placeholder.com/200?text=Pairoj',
+        party_id: 3,
+        constituency_id: 5,
+        created_at: new Date('2025-09-05T11:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Kannika',
+        last_name: 'Thammavong',
+        number: 4,
+        image_url: 'https://via.placeholder.com/200?text=Kannika',
+        party_id: 4,
+        constituency_id: 5,
+        created_at: new Date('2025-09-05T12:00:00Z'),
+    },
+
+    // Phuket Constituency 1 - 4 candidates
+    {
+        title: 'Mr.',
+        first_name: 'Prawit',
+        last_name: 'Khaimuk',
+        number: 1,
+        image_url: 'https://via.placeholder.com/200?text=Prawit',
+        party_id: 4,
+        constituency_id: 6,
+        created_at: new Date('2025-09-06T09:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Sasithorn',
+        last_name: 'Namchoo',
+        number: 2,
+        image_url: 'https://via.placeholder.com/200?text=Sasithorn',
+        party_id: 2,
+        constituency_id: 6,
+        created_at: new Date('2025-09-06T10:00:00Z'),
+    },
+    {
+        title: 'Ms.',
+        first_name: 'Issara',
+        last_name: 'Namkong',
+        number: 3,
+        image_url: 'https://via.placeholder.com/200?text=Issara',
+        party_id: 1,
+        constituency_id: 6,
+        created_at: new Date('2025-09-06T11:00:00Z'),
+    },
+    {
+        title: 'Mr.',
+        first_name: 'Khanit',
+        last_name: 'Saithong',
+        number: 4,
+        image_url: 'https://via.placeholder.com/200?text=Khanit',
+        party_id: 5,
+        constituency_id: 6,
+        created_at: new Date('2025-09-06T12:00:00Z'),
+    },
+];

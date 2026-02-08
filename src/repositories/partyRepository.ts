@@ -1,68 +1,52 @@
-import pool from '../config/db';
-import type {Party} from '../types/models';
+import prisma from '../config/prisma';
+import { Party } from '../models';
 
 export const getPartyById = async (id: number): Promise<Party | null> => {
-    const query = `
+    const result = await prisma.$queryRaw<Party[]>`
         SELECT id, name, logo_url, policy, created_at
         FROM "Party"
-        WHERE id = $1
+        WHERE id = ${id}
     `;
-
-    const result = await pool.query<Party>(query, [id]);
-    return result.rows[0] ?? null;
+    return result[0] ?? null;
 };
 
 export const getPartiesBasic = async (): Promise<any[]> => {
-    const query = `
+    const result = await prisma.$queryRaw`
         SELECT id, name, logo_url
         FROM "Party"
         ORDER BY name ASC
     `;
-
-    const result = await pool.query(query);
-    return result.rows;
+    return result;
 };
 
 export const getPartyWithCandidates = async (id: number): Promise<any | null> => {
-    const partyQuery = `
+    const partyResult = await prisma.$queryRaw<Party[]>`
         SELECT id, name, logo_url, policy, created_at
         FROM "Party"
-        WHERE id = $1
+        WHERE id = ${id}
     `;
+    if (!partyResult[0]) return null;
 
-    const partyResult = await pool.query<Party>(partyQuery, [id]);
-    if (!partyResult.rows[0]) return null;
-
-    const candidatesQuery = `
-        SELECT c.id,
-               c.title,
-               c.first_name,
-               c.last_name,
-               c.number,
-               c.image_url,
-               con.province,
-               con.district_number
+    const candidatesResult = await prisma.$queryRaw`
+        SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url,
+               con.province, con.district_number
         FROM "Candidate" c
-                 JOIN "Constituency" con ON c.constituency_id = con.id
-        WHERE c.party_id = $1
+        JOIN "Constituency" con ON c.constituency_id = con.id
+        WHERE c.party_id = ${id}
         ORDER BY con.province, con.district_number
     `;
 
-    const candidatesResult = await pool.query(candidatesQuery, [id]);
-
     return {
-        ...partyResult.rows[0],
-        candidates: candidatesResult.rows,
+        ...partyResult[0],
+        candidates: candidatesResult,
     };
 };
 
 export const getPartyByName = async (name: string): Promise<Party | null> => {
-    const query = `
+    const result = await prisma.$queryRaw<Party[]>`
         SELECT id, name, logo_url, policy, created_at
         FROM "Party"
-        WHERE name = $1
+        WHERE name = ${name}
     `;
-
-    const result = await pool.query<Party>(query, [name]);
-    return result.rows[0] ?? null;
+    return result[0] ?? null;
 };

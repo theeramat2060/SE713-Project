@@ -1,5 +1,5 @@
 import type {Request, Response} from 'express';
-import type {User, Admin} from '../types/models';
+import { User, Admin } from '../models';
 import * as tokenService from '../services/tokenService';
 
 type AuthHandler = (req: Request, res: Response, user: User) => Promise<void>;

@@ -1,37 +1,31 @@
-import pool from '../config/db';
-import type {Admin} from '../types/models';
+import prisma from '../config/prisma';
+import { Admin } from '../models';
 
 export const createAdmin = async (username: string, hashedPassword: string): Promise<Admin> => {
-    const query = `
+    const result = await prisma.$queryRaw<Admin[]>`
         INSERT INTO "Admin" (username, password)
-        VALUES ($1, $2) RETURNING id, username, password, created_at
+        VALUES (${username}, ${hashedPassword}) RETURNING id, username, password, created_at
     `;
 
-    const result = await pool.query<Admin>(query, [username, hashedPassword]);
-
-    return result.rows[0]!;
+    return result[0]!;
 };
 
 export const findAdminByUsername = async (username: string): Promise<Admin | null> => {
-    const query = `
+    const result = await prisma.$queryRaw<Admin[]>`
         SELECT id, username, password, created_at
         FROM "Admin"
-        WHERE username = $1
+        WHERE username = ${username}
     `;
 
-    const result = await pool.query<Admin>(query, [username]);
-
-    return result.rows[0] ?? null;
+    return result[0] ?? null;
 };
 
 export const getAdminById = async (id: number): Promise<Admin | null> => {
-    const query = `
+    const result = await prisma.$queryRaw<Admin[]>`
         SELECT id, username, password, created_at
         FROM "Admin"
-        WHERE id = $1
+        WHERE id = ${id}
     `;
 
-    const result = await pool.query<Admin>(query, [id]);
-
-    return result.rows[0] ?? null;
+    return result[0] ?? null;
 };

@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "Kick off project",
   "main": "index.js",
+  "type": "module",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon --exec tsx src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "migrate": "psql -h localhost -U admin -d mydatabase -f migrations/001_init.sql",
-    "seed": "ts-node scripts/seed.ts",
+    "seed": "prisma db seed",
     "seed:sql": "psql -h localhost -U admin -d mydatabase -f migrations/002_seed_test_data.sql",
     "test:api": "ts-node scripts/test-api.ts",
     "test:supabase": "ts-node scripts/test-supabase.ts",
@@ -21,7 +25,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/theeramat2060/SE713-Project/issues"
   },
@@ -35,14 +38,19 @@
     "@types/node": "^25.1.0",
     "@types/pg": "^8.16.0",
     "nodemon": "^3.1.11",
+    "prisma": "^7.3.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "@prisma/extension-accelerate": "^3.0.1",
     "@supabase/supabase-js": "^2.93.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "express-validator": "^7.3.1",
     "helmet": "^8.1.0",
@@ -51,4 +59,3 @@
     "pg": "^8.18.0"
   }
 }
-

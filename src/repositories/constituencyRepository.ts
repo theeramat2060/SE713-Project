@@ -1,106 +1,67 @@
-import pool from '../config/db';
-import type {Constituency} from '../types/models';
+import prisma from '../config/prisma';
+import { ConstituencyModel } from '../models';
 
-export const getConstituencyById = async (id: number): Promise<Constituency | null> => {
-    const query = `
+export const getConstituencyById = async (id: number): Promise<ConstituencyModel | null> => {
+    const result = await prisma.$queryRaw<ConstituencyModel[]>`
         SELECT id, province, district_number, is_closed
         FROM "Constituency"
-        WHERE id = $1
+        WHERE id = ${id}
     `;
-
-    const result = await pool.query<Constituency>(query, [id]);
-    return result.rows[0] ?? null;
+    return result[0] ?? null;
 };
 
-export const getAllConstituencies = async (): Promise<Constituency[]> => {
-    const query = `
+export const getAllConstituencies = async (): Promise<ConstituencyModel[]> => {
+    const result = await prisma.$queryRaw<ConstituencyModel[]>`
         SELECT id, province, district_number, is_closed
         FROM "Constituency"
         ORDER BY province ASC, district_number ASC
     `;
-
-    const result = await pool.query<Constituency>(query);
-    return result.rows;
+    return result;
 };
 
 export const getCandidatesWithVotes = async (
     constituencyId: number,
     includeCounts: boolean
 ): Promise<any[]> => {
-    let query: string;
-
     if (includeCounts) {
-        query = `
-            SELECT c.id,
-                   c.title,
-                   c.first_name,
-                   c.last_name,
-                   c.number,
-                   c.image_url,
-                   c.party_id,
-                   p.name      as party_name,
-                   p.logo_url  as party_logo_url,
-                   COUNT(v.id) as vote_count
+        const result = await prisma.$queryRaw`
+            SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url, c.party_id,
+                   p.name as party_name, p.logo_url as party_logo_url, COUNT(v.id) as vote_count
             FROM "Candidate" c
-                     JOIN "Party" p ON c.party_id = p.id
-                     LEFT JOIN "Vote" v ON c.id = v.candidate_id
-            WHERE c.constituency_id = $1
+            JOIN "Party" p ON c.party_id = p.id
+            LEFT JOIN "Vote" v ON c.id = v.candidate_id
+            WHERE c.constituency_id = ${constituencyId}
             GROUP BY c.id, p.name, p.logo_url
             ORDER BY c.number ASC
         `;
+        return result;
     } else {
-        query = `
-            SELECT c.id,
-                   c.title,
-                   c.first_name,
-                   c.last_name,
-                   c.number,
-                   c.image_url,
-                   c.party_id,
-                   p.name     as party_name,
-                   p.logo_url as party_logo_url,
-                   0          as vote_count
+        const result = await prisma.$queryRaw`
+            SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url, c.party_id,
+                   p.name as party_name, p.logo_url as party_logo_url, 0 as vote_count
             FROM "Candidate" c
-                     JOIN "Party" p ON c.party_id = p.id
-            WHERE c.constituency_id = $1
+            JOIN "Party" p ON c.party_id = p.id
+            WHERE c.constituency_id = ${constituencyId}
             ORDER BY c.number ASC
         `;
+        return result;
     }
-
-    const result = await pool.query(query, [constituencyId]);
-    return result.rows;
 };
 
 export const getClosedConstituencies = async (): Promise<any[]> => {
-    const query = `
-        SELECT con.id,
-               con.province,
-               con.district_number,
-               con.is_closed,
-               con.created_at,
-               json_agg(
-                       json_build_object(
-                               'id', c.id,
-                               'title', c.title,
-                               'first_name', c.first_name,
-                               'last_name', c.last_name,
-                               'number', c.number,
-                               'party_id', c.party_id,
-                               'party_name', p.name,
-                               'party_logo_url', p.logo_url,
-                               'vote_count', COALESCE(vc.count, 0)
-                       )
-               ) as candidates
+    const result = await prisma.$queryRaw`
+        SELECT con.id, con.province, con.district_number, con.is_closed, con.created_at,
+               json_agg(json_build_object(
+                   'id', c.id, 'title', c.title, 'first_name', c.first_name, 'last_name', c.last_name,
+                   'number', c.number, 'party_id', c.party_id, 'party_name', p.name,
+                   'party_logo_url', p.logo_url, 'vote_count', COALESCE(vc.count, 0)
+               )) as candidates
         FROM "Constituency" con
-                 LEFT JOIN "Candidate" c ON con.id = c.constituency_id
-                 LEFT JOIN "Party" p ON c.party_id = p.id
-                 LEFT JOIN (SELECT candidate_id, COUNT(*) as count
-                            FROM "Vote"
-                            GROUP BY candidate_id) vc ON c.id = vc.candidate_id
+        LEFT JOIN "Candidate" c ON con.id = c.constituency_id
+        LEFT JOIN "Party" p ON c.party_id = p.id
+        LEFT JOIN (SELECT candidate_id, COUNT(*) as count FROM "Vote" GROUP BY candidate_id) vc ON c.id = vc.candidate_id
         WHERE con.is_closed = true
         GROUP BY con.id, con.province, con.district_number, con.is_closed, con.created_at
     `;
-
-    const result = await pool.query(query);
-    return result.rows;
+    return result;
 };
