@@ -9,6 +9,33 @@ const parseId = (id: string | string[]): number | null => {
     return isNaN(parsed) ? null : parsed;
 };
 
+// Get candidate by ID
+router.get('/candidates/:id', async (req: Request, res: Response) => {
+    const candidateId = parseId(req.params.id);
+
+    if (candidateId === null) {
+        return res.status(400).json({
+            success: false,
+            error: 'Invalid candidate ID',
+        });
+    }
+
+    const result = await publicService.getCandidateById(candidateId);
+
+    if (!result.success) {
+        const statusCode = result.error?.code || 500;
+        return res.status(statusCode).json({
+            success: false,
+            error: result.error?.message || 'Internal server error',
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: result.data,
+    });
+});
+
 // Get all constituencies
 router.get('/constituencies', async (req: Request, res: Response) => {
     const result = await publicService.getConstituencies();

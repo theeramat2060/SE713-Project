@@ -59,6 +59,22 @@ export interface PartyOverviewResponse {
     }[];
 }
 
+export interface CandidateDetailResponse {
+    id: number;
+    title: string;
+    first_name: string;
+    last_name: string;
+    number: number;
+    image_url: string;
+    party_id: number;
+    party_name: string;
+    party_logo_url: string;
+    constituency_id: number;
+    province: string;
+    district_number: number;
+    created_at: Date;
+}
+
 // Generic Service Result
 export interface ServiceResult<T> {
     success: boolean;
