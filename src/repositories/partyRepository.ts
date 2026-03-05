@@ -29,7 +29,7 @@ export const getPartyWithCandidates = async (id: number): Promise<any | null> =>
 
     const candidatesResult = await prisma.$queryRaw`
         SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url,
-               con.province, con.district_number
+            con.province, con.district_number
         FROM "Candidate" c
         JOIN "Constituency" con ON c.constituency_id = con.id
         WHERE c.party_id = ${id}

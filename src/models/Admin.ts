@@ -13,12 +13,15 @@ export class Admin {
     username: string;
     password: string;
     created_at: Date;
+    role: string;
+    
 
     constructor(data: Admin) {
         this.id = data.id;
         this.username = data.username;
         this.password = data.password;
         this.created_at = data.created_at;
+        this.role = data.role;
     }
 
     /**
@@ -26,10 +29,10 @@ export class Admin {
      */
     isValid(): boolean {
         return !!(this.id > 0 && 
-                  this.username && 
-                  this.username.length >= 3 && 
-                  this.password && 
-                  this.password.length > 0);
+                this.username && 
+                this.username.length >= 3 && 
+                this.password && 
+                this.password.length > 0);
     }
 
     /**

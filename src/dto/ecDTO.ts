@@ -20,3 +20,8 @@ export interface ServiceResult<T> {
         code: number;
     };
 }
+
+export interface CloseVotingRequest {
+    isClosed: boolean;
+}
+
