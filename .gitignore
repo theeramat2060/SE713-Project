@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+npm-error.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+.Spotlight-V100
+.Trashes
+
+# Runtime
+*.log
+*.pid
+*.pid.lock
+
+# Temporary
+.tmp/
+.temp/
+tmp/
+temp/
+
+# Build artifacts
+*.o
+*.a
+*.so
+
+# Legacy/typo directories
+soucre/
+.nodemon.json
+.nyc_output/
+coverage/
+
+/src/generated/prisma
