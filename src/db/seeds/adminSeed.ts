@@ -1,10 +1,3 @@
-/**
- * Admin Seed Data
- * Initial admin users for the election system
- * 
- * Passwords should be bcrypt hashed before inserting
- */
-
 export interface AdminSeedRecord {
     username: string;
     password: string;
