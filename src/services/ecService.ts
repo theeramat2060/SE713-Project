@@ -7,12 +7,14 @@ import {
 import * as publicService from './publicService';
 
 
-
+const logECStaffEvent = (event: string, data: Record<string, any>) => {
+    console.log(`[ECStaff] ${event}:`, {timestamp: new Date().toISOString(), ...data});
+};
 
 //close and open voting for a constituency
 export class CloseVotingService {
     static async closeVoting(isClosed: boolean): Promise<{ success: boolean }> {
-    
+     logECStaffEvent('POST_CLOSE_VOTE', {});
     const result = await publicService.getConstituencies();
     if (result.data) {
         for (let i = 0; i < result.data.length; i++) {
