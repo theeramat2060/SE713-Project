@@ -1,8 +1,3 @@
-/**
- * Constituency Seed Data
- * Electoral constituencies (เขตเลือกตั้ง)
- */
-
 export interface ConstituencySeedRecord {
     province: string;
     district_number: number;

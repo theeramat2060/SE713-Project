@@ -1,8 +1,3 @@
-/**
- * Party Seed Data
- * Political parties (พรรคการเมือง)
- */
-
 export interface PartySeedRecord {
     name: string;
     policy: string;

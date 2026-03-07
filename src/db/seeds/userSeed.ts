@@ -1,8 +1,3 @@
-/**
- * User Seed Data
- * Voters and election commission staff (ผู้มีสิทธิเลือกตั้ง)
- */
-
 export interface UserSeedRecord {
     national_id: string;
     password: string;
@@ -21,7 +16,7 @@ export const userSeedData: UserSeedRecord[] = [
         national_id: '1234567890001',
         password: '$2a$10$YBC.GRDVdXFKUNL67YoHJeKVKLZSFRLzvGE5Pxmxvvx5TxKr4X0/m', // bcrypt(voter123)
         title: 'Mr.',
-        first_name: 'John',
+        first_name: 'VANNN',
         last_name: 'Voter1',
         address: '123 Sukhumvit Rd, Bangkok 10110',
         role: 'VOTER',
