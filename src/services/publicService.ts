@@ -40,8 +40,6 @@ export const getConstituencyResults = async (constituencyId: number): Promise<Se
         constituencyId,
         constituency.is_closed
     );
-
-    logPublicEvent('GET_CONSTITUENCY_RESULTS', {constituencyId, candidateCount: candidates.length});
     return {
         success: true,
         data: {
