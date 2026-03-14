@@ -1,7 +1,6 @@
 import prisma from '../config/prisma';
 import { User } from '../models';
 
-type UserWithConstituency = User & { province?: string; district_number?: number };
 
 export const createUser = async (
     nationalId: string,
@@ -13,43 +12,95 @@ export const createUser = async (
     role: 'VOTER' | 'EC',
     constituencyId: number
 ): Promise<User> => {
-    const result = await prisma.$queryRaw<User[]>`
-        INSERT INTO "User" (national_id, password, title, first_name, last_name, address, role, constituency_id)
-        VALUES (${nationalId}, ${hashedPassword}, ${title}, ${firstName}, ${lastName}, ${address}, ${role}, ${constituencyId})
-        RETURNING id, national_id, password, title, first_name, last_name, address, role, constituency_id, created_at
-    `;
+    const userData = await prisma.user.create({
+        data: {
+            national_id: nationalId,
+            password: hashedPassword,
+            title,
+            first_name: firstName,
+            last_name: lastName,
+            address: address,
+            role: role,
+            constituency_id: constituencyId,
+        },
+    });
 
-    return result[0]!;
+        // @ts-ignore
+    return new User(userData);
 };
 
 export const findUserByNationalId = async (nationalId: string): Promise<User | null> => {
-    const result = await prisma.$queryRaw<User[]>`
-        SELECT id, national_id, password, title, first_name, last_name, address, role, constituency_id, created_at
-        FROM "User"
-        WHERE national_id = ${nationalId}
-    `;
+    const user = await prisma.user.findUnique({
+        where: { national_id: nationalId },
+    });
 
-    return result[0] ?? null;
+    if (!user) return null;
+
+    // @ts-ignore
+    return new User(user);
 };
 
 export const getUserById = async (id: string): Promise<User | null> => {
-    const result = await prisma.$queryRaw<User[]>`
-        SELECT id, national_id, password, title, first_name, last_name, address, role, constituency_id, created_at
-        FROM "User"
-        WHERE id = ${id}
-    `;
+    const user = await prisma.user.findUnique({
+        where: { id },
+    });
 
-    return result[0] ?? null;
+    if (!user) return null;
+
+    // @ts-ignore
+    return new User(user);
 };
 
-export const getUserWithConstituency = async (id: string): Promise<UserWithConstituency | null> => {
-    const result = await prisma.$queryRaw<UserWithConstituency[]>`
-        SELECT u.id, u.national_id, u.password, u.title, u.first_name, u.last_name, u.address, u.role, u.constituency_id, u.created_at,
-               c.province, c.district_number, c.is_closed
-        FROM "User" u
-        JOIN "Constituency" c ON u.constituency_id = c.id
-        WHERE u.id = ${id}
-    `;
+export const getUserWithConstituency = async (id: string): Promise<{
+    id: string;
+    national_id: string;
+    password: string;
+    title: string;
+    first_name: string;
+    last_name: string;
+    address: string;
+    role: string | null;
+    constituency_id: number | null;
+    created_at: Date | null;
+    province: any | null;
+    district_number: any | null;
+} | null> => {
+    const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            national_id: true,
+            password: true,
+            title: true,
+            first_name: true,
+            last_name: true,
+            address: true,
+            role: true,
+            constituency_id: true,
+            created_at: true,
+            Constituency: {
+                select: {
+                    province: true,
+                    district_number: true,
+                },
+            },
+        },
+    });
 
-    return result[0] ?? null;
+    if (!user) return null;
+
+    return {
+        id: user.id,
+        national_id: user.national_id,
+        password: user.password,
+        title: user.title,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        address: user.address,
+        role: user.role ?? null,
+        constituency_id: user.constituency_id ?? null,
+        created_at: user.created_at ?? null,
+        province: user.Constituency?.province ?? null,
+        district_number: user.Constituency?.district_number ?? null,
+    };
 };

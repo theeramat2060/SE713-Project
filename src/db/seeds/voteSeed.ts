@@ -1,8 +1,3 @@
-/**
- * Vote Seed Data
- * Votes cast by users for candidates
- */
-
 export interface VoteSeedRecord {
     user_id: string;
     candidate_id: number;

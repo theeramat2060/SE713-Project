@@ -1,8 +1,6 @@
-import * as candidateRepository from '../repositories/candidateRepository';
 import * as constituencyRepository from '../repositories/constituencyRepository';
 import * as partyRepository from '../repositories/partyRepository';
 import {
-    CandidateDetailResponse,
     ConstituencyResponse,
     ConstituencyResultsResponse,
     PartyResponse,
@@ -10,97 +8,32 @@ import {
     PartyOverviewResponse,
     ServiceResult
 } from '../dto/publicDTO';
+import {findAllConstituencies} from "../repositories/constituencyRepository";
+import {findAllParties, findPartyById} from "../repositories/partyRepository";
 
 const logPublicEvent = (event: string, data: Record<string, any>) => {
     console.log(`[PUBLIC] ${event}:`, {timestamp: new Date().toISOString(), ...data});
 };
 
-export const getCandidateById = async (candidateId: number): Promise<ServiceResult<CandidateDetailResponse>> => {
-    const candidate = await candidateRepository.getCandidateById(candidateId);
-
-    if (!candidate) {
-        logPublicEvent('CANDIDATE_NOT_FOUND', { candidateId });
-        return {
-            success: false,
-            error: {
-                message: 'Candidate not found',
-                code: 404,
-            },
-        };
-    }
-
-    logPublicEvent('GET_CANDIDATE', { candidateId });
-    return {
-        success: true,
-        data: candidate,
-    };
+export const getAllConstituencies = async () => {
+    logPublicEvent('GET_ALL_CONSTITUENCIES', {});
+    return await constituencyRepository.findAllConstituencies();
 };
 
-export const getConstituencies = async (): Promise<ServiceResult<ConstituencyResponse[]>> => {
-    logPublicEvent('GET_CONSTITUENCIES', {});
-    const constituencies = await constituencyRepository.getAllConstituencies();
-    return {
-        success: true,
-        data: constituencies,
-    };
-};
-
-export const getConstituencyResults = async (constituencyId: number): Promise<ServiceResult<ConstituencyResultsResponse>> => {
-    const constituency = await constituencyRepository.getConstituencyById(constituencyId);
-
-    if (!constituency) {
-        logPublicEvent('CONSTITUENCY_NOT_FOUND', {constituencyId});
-        return {
-            success: false,
-            error: {
-                message: 'Constituency not found',
-                code: 404,
-            },
-        };
-    }
-
-    const candidates = await constituencyRepository.getCandidatesWithVotes(
-        constituencyId,
-        constituency.is_closed
-    );
-
-    logPublicEvent('GET_CONSTITUENCY_RESULTS', {constituencyId, candidateCount: candidates.length});
-    return {
-        success: true,
-        data: {
-            constituency,
-            candidates,
-        },
-    };
-};
-
-export const getParties = async (): Promise<ServiceResult<PartyResponse[]>> => {
-    logPublicEvent('GET_PARTIES', {});
-    const parties = await partyRepository.getPartiesBasic();
+export const getAllParties = async (): Promise<ServiceResult<PartyResponse[]>> => {
+    logPublicEvent('GET_ALL_PARTIES', {});
+    const parties = await partyRepository.findAllParties();
     return {
         success: true,
         data: parties,
     };
 };
-
-export const getPartyDetails = async (partyId: number): Promise<ServiceResult<PartyDetailsResponse>> => {
-    const party = await partyRepository.getPartyWithCandidates(partyId);
-
-    if (!party) {
-        logPublicEvent('PARTY_NOT_FOUND', {partyId});
-        return {
-            success: false,
-            error: {
-                message: 'Party not found',
-                code: 404,
-            },
-        };
-    }
-
-    logPublicEvent('GET_PARTY_DETAILS', {partyId});
+export const getParties = async (id:number) => {
+    logPublicEvent('GET_ALL_PARTIES', {});
+    const parties = await partyRepository.findPartyById(id);
     return {
         success: true,
-        data: party,
+        data: parties,
     };
 };
 

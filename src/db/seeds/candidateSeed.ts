@@ -1,8 +1,3 @@
-/**
- * Candidate Seed Data
- * Political candidates (ผู้สมัคร)
- */
-
 export interface CandidateSeedRecord {
     title: string;
     first_name: string;

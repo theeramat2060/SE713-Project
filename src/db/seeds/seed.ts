@@ -1,12 +1,10 @@
 import prisma from '../../config/prisma';
-import {
-    adminSeedData,
-    constituencySeedData,
-    partySeedData,
-    candidateSeedData,
-    userSeedData,
-    voteSeedData,
-} from './index';
+import {adminSeedData} from './adminSeed';
+import {constituencySeedData} from './constituencySeed';
+import {partySeedData} from './partySeed';
+import {candidateSeedData} from './candidateSeed';
+import {userSeedData} from './userSeed';
+import {voteSeedData} from './voteSeed';
 import * as bcrypt from 'bcryptjs';
 
 async function seed() {

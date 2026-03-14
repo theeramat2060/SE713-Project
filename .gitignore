@@ -56,3 +56,4 @@ soucre/
 coverage/
 
 /src/generated/prisma
+docker-compose.yml
