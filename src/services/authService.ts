@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import {generateToken} from '../utils/jwt';
 import * as userRepository from '../repositories/userRepository';
 import * as adminRepository from '../repositories/adminRepository';
-import { User, Admin } from '../models';
 import {
     RegisterUserRequest,
     LoginUserRequest,
@@ -167,5 +166,59 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
     return {
         success: true,
         data: {token, admin},
+    };
+};
+
+export const getCurrentUser = async (userId: string): Promise<ServiceResult<any>> => {
+    const user = await userRepository.getUserById(userId);
+
+    if (!user) {
+        logAuthEvent('GET_USER_FAILED', {reason: 'User not found', userId});
+        return {
+            success: false,
+            error: {
+                message: 'User not found',
+                code: 404,
+            },
+        };
+    }
+
+    logAuthEvent('GET_USER', {userId: user.id, role: user.role});
+    return {
+        success: true,
+        data: {
+            id: user.id,
+            nationalId: user.national_id,
+            title: user.title,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            address: user.address,
+            role: user.role,
+            constituencyId: user.constituency_id,
+        },
+    };
+};
+
+export const getCurrentAdmin = async (adminId: number): Promise<ServiceResult<any>> => {
+    const admin = await adminRepository.getAdminById(adminId);
+
+    if (!admin) {
+        logAuthEvent('GET_ADMIN_FAILED', {reason: 'Admin not found', adminId});
+        return {
+            success: false,
+            error: {
+                message: 'Admin not found',
+                code: 404,
+            },
+        };
+    }
+
+    logAuthEvent('GET_ADMIN', {adminId: admin.id});
+    return {
+        success: true,
+        data: {
+            id: admin.id,
+            username: admin.username,
+        },
     };
 };
