@@ -5,7 +5,7 @@ import * as adminRepo from '../repositories/adminRepository';
 
 export class ChangeUserRoleService {
     static async changeUserRole(userId: string, newRole: string): Promise<{ success: boolean }> {
-        const validRoles = ['voter', 'ec_staff', 'admin'];
+        const validRoles = ['VOTER', 'EC'];
         if (!validRoles.includes(newRole)) {
             throw new Error(`Invalid role: ${newRole}. Valid roles are: ${validRoles.join(', ')}`);
         }
@@ -18,12 +18,12 @@ export class ChangeUserRoleService {
 }
 
 export class AddConstituencyService {
-    static async addConstituency(name: string): Promise<{ success: boolean; message: string; data: any }> {
-    const result = await adminRepo.addConstituency(name);
-        console.log(`Adding constituency: ${name}`);
+    static async addConstituency(data: any): Promise<{ success: boolean; message: string; data: any }> {
+    const result = await adminRepo.addConstituency(data);
+        console.log(`Adding constituency: ${data.name}`);
         return {
             success: true,
-            message: `Constituency ${name} added successfully`,
+            message: `Constituency ${data.name} added successfully`,
             data: result,
         };
     }

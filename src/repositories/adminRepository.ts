@@ -32,16 +32,17 @@ export const getAdminById = async (id: number): Promise<Admin | null> => {
 
 export const updateUserRole = async (adminId: number, newRole: string): Promise<void> => {
     await prisma.$queryRaw`
-        UPDATE "Admin"
+        UPDATE "User"
         SET role = ${newRole}
-        WHERE id = ${adminId}
+        WHERE national_id = ${adminId}
     `;
-};
+}
 
-export const addConstituency = async (name: string): Promise<void> => {
+
+export const addConstituency = async (data:any): Promise<void> => {
     await prisma.$queryRaw`
-        INSERT INTO "Constituency" (name)
-        VALUES (${name})
+        INSERT INTO "Constituency" (name, province, district_number, is_closed)
+        VALUES (${data.name}, ${data.province}, ${data.district_number}, is_closed=false)
     `;
 };
 
