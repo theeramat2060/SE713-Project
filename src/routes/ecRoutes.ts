@@ -49,18 +49,18 @@ router.get('/open-constituencies', async (req: Request, res: Response) => {
 
 });
 
-// POST /api/ec/close-voting - Close voting
-router.post('/close-voting',  async (req: Request, res: Response) => {
+// POST /api/ec/update-voting - Update voting status
+router.post('/update-voting',  async (req: Request, res: Response) => {
     const data: CloseVotingRequest = req.body;
-    console.log('Received close voting request:', data);
+    console.log('Received update voting request:', data);
     const result = await ecService.CloseVotingService.closeVoting(data.isClosed);
         if (result.success&&data.isClosed) {
             return res.status(200).json({
-        success: true,
-        message: 'Voting closed successfully',
-    });
+            success: true,
+            message: 'Voting closed successfully',
+        });
     }else if(result.success&&!data.isClosed){
-        return res.status(200).json({
+            return res.status(200).json({
             success: true,
             message: 'Voting opened successfully',
         });
@@ -169,6 +169,7 @@ router.post('/get-candidate', async (req: Request, res: Response) => {
 });
 
 //Update everything of candidate except id, including photo, name, number, party, constituency
+//Totest
 router.post('/update-candidate/:id', async (req: Request, res: Response) => {
 const candidateId = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
 const { title, first_name, last_name, number, image_url, party_id, constituency_id } = req.body;

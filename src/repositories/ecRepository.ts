@@ -1,4 +1,3 @@
-import e from "express";
 import prisma from "../config/prisma";
 import { ConstituencyModel } from "../models";
 
