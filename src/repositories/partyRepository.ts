@@ -11,12 +11,12 @@ export const getPartyById = async (id: number): Promise<Party | null> => {
 };
 
 export const getPartiesBasic = async (): Promise<any[]> => {
-    const result = await prisma.$queryRaw`
+    const result = await prisma.$queryRaw<any[]>`
         SELECT id, name, logo_url
         FROM "Party"
         ORDER BY name ASC
     `;
-    return result;
+    return result ?? [];
 };
 
 export const getPartyWithCandidates = async (id: number): Promise<any | null> => {

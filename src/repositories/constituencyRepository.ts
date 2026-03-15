@@ -24,7 +24,7 @@ export const getCandidatesWithVotes = async (
     includeCounts: boolean
 ): Promise<any[]> => {
     if (includeCounts) {
-        const result = await prisma.$queryRaw`
+        const result = await prisma.$queryRaw<any[]>`
             SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url, c.party_id,
                 p.name as party_name, p.logo_url as party_logo_url, COUNT(v.id) as vote_count
             FROM "Candidate" c
@@ -34,9 +34,9 @@ export const getCandidatesWithVotes = async (
             GROUP BY c.id, p.name, p.logo_url
             ORDER BY c.number ASC
         `;
-        return result;
+        return result ?? [];
     } else {
-        const result = await prisma.$queryRaw`
+        const result = await prisma.$queryRaw<any[]>`
             SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url, c.party_id,
                 p.name as party_name, p.logo_url as party_logo_url, 0 as vote_count
             FROM "Candidate" c
@@ -44,12 +44,12 @@ export const getCandidatesWithVotes = async (
             WHERE c.constituency_id = ${constituencyId}
             ORDER BY c.number ASC
         `;
-        return result;
+        return result ?? [];
     }
 };
 
 export const getClosedConstituencies = async (): Promise<any[]> => {
-    const result = await prisma.$queryRaw`
+    const result = await prisma.$queryRaw<any[]>`
         SELECT con.id, con.province, con.district_number, con.is_closed, con.created_at,
             json_agg(json_build_object(
                 'id', c.id, 'title', c.title, 'first_name', c.first_name, 'last_name', c.last_name,
@@ -63,5 +63,5 @@ export const getClosedConstituencies = async (): Promise<any[]> => {
         WHERE con.is_closed = true
         GROUP BY con.id, con.province, con.district_number, con.is_closed, con.created_at
     `;
-    return result;
+    return result ?? [];
 };

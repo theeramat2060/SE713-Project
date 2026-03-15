@@ -29,3 +29,25 @@ export const getAdminById = async (id: number): Promise<Admin | null> => {
 
     return result[0] ?? null;
 };
+
+export const updateUserRole = async (adminId: number, newRole: string): Promise<void> => {
+    await prisma.$queryRaw`
+        UPDATE "Admin"
+        SET role = ${newRole}
+        WHERE id = ${adminId}
+    `;
+};
+
+export const addConstituency = async (name: string): Promise<void> => {
+    await prisma.$queryRaw`
+        INSERT INTO "Constituency" (name)
+        VALUES (${name})
+    `;
+};
+
+export const removeConstituency = async (id: number): Promise<void> => {
+    await prisma.$queryRaw`
+        DELETE FROM "Constituency"
+        WHERE id = ${id}
+    `;
+};

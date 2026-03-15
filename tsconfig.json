@@ -7,7 +7,6 @@
     "target": "ES2023",
     "strict": true,
     "esModuleInterop": true,
-    "ignoreDeprecations": "6.0",
     "lib": [
       "es2020"
     ],
@@ -27,7 +26,9 @@
   "exclude": [
     "node_modules",
     "dist",
-    "scripts"
+    "scripts",
+    "prisma",
+    "prisma.config.ts"
   ]
 }
 
