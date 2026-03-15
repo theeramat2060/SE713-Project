@@ -1,3 +1,7 @@
+import {PrismaPg} from "@prisma/adapter-pg";
+import {$UserPayload, Prisma__UserClient } from "../generated/prisma/models";
+import {DefaultArgs, GetResult, PrismaClientOptions } from "@prisma/client/runtime/client";
+
 /**
  * User Model
  * Represents a voter or election commission staff member
@@ -108,7 +112,6 @@ export class User {
             role: this.role,
             constituency_id: this.constituency_id,
             created_at: this.created_at,
-            // password is NOT included in responses
         };
     }
 }

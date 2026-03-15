@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import {generateToken} from '../utils/jwt';
 import * as userRepository from '../repositories/userRepository';
 import * as adminRepository from '../repositories/adminRepository';
-import { User, Admin } from '../models';
 import {
     RegisterUserRequest,
     LoginUserRequest,
@@ -132,9 +131,40 @@ export const registerAdmin = async (data: RegisterAdminRequest): Promise<Service
 };
 
 export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult<AuthTokenResponse>> => {
-    const admin = await adminRepository.findAdminByUsername(data.username);
+    // First try to find Admin user by username
+    let admin = await adminRepository.findAdminByUsername(data.username);
 
-    if (!admin) {
+    if (admin) {
+        // Admin user found
+        const isPasswordValid = await bcrypt.compare(data.password, admin.password);
+
+        if (!isPasswordValid) {
+            logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', adminId: admin.id});
+            return {
+                success: false,
+                error: {
+                    message: 'Invalid credentials',
+                    code: 401,
+                },
+            };
+        }
+
+        const token = generateToken({
+            adminId: admin.id,
+            role: 'ADMIN',
+        });
+
+        logAuthEvent('ADMIN_LOGIN', {adminId: admin.id});
+        return {
+            success: true,
+            data: {token, admin},
+        };
+    }
+
+    // If not found as admin, try to find as EC user by national ID
+    const ecUser = await userRepository.findUserByNationalId(data.username);
+
+    if (!ecUser || ecUser.role !== 'EC') {
         logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid credentials', username: data.username});
         return {
             success: false,
@@ -145,10 +175,11 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
         };
     }
 
-    const isPasswordValid = await bcrypt.compare(data.password, admin.password);
+    // EC user found, validate password
+    const isPasswordValid = await bcrypt.compare(data.password, ecUser.password);
 
     if (!isPasswordValid) {
-        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', adminId: admin.id});
+        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', userId: ecUser.id});
         return {
             success: false,
             error: {
@@ -159,13 +190,69 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
     }
 
     const token = generateToken({
-        adminId: admin.id,
-        role: 'ADMIN',
+        userId: ecUser.id,
+        role: ecUser.role,
+        constituencyId: ecUser.constituency_id,
     });
 
-    logAuthEvent('ADMIN_LOGIN', {adminId: admin.id});
+    logAuthEvent('EC_LOGIN', {userId: ecUser.id, role: ecUser.role});
     return {
         success: true,
-        data: {token, admin},
+        // @ts-ignore
+        data: {token, user: ecUser},
+    };
+};
+
+export const getCurrentUser = async (userId: string): Promise<ServiceResult<any>> => {
+    const user = await userRepository.getUserById(userId);
+
+    if (!user) {
+        logAuthEvent('GET_USER_FAILED', {reason: 'User not found', userId});
+        return {
+            success: false,
+            error: {
+                message: 'User not found',
+                code: 404,
+            },
+        };
+    }
+
+    logAuthEvent('GET_USER', {userId: user.id, role: user.role});
+    return {
+        success: true,
+        data: {
+            id: user.id,
+            nationalId: user.national_id,
+            title: user.title,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            address: user.address,
+            role: user.role,
+            constituencyId: user.constituency_id,
+        },
+    };
+};
+
+export const getCurrentAdmin = async (adminId: number): Promise<ServiceResult<any>> => {
+    const admin = await adminRepository.getAdminById(adminId);
+
+    if (!admin) {
+        logAuthEvent('GET_ADMIN_FAILED', {reason: 'Admin not found', adminId});
+        return {
+            success: false,
+            error: {
+                message: 'Admin not found',
+                code: 404,
+            },
+        };
+    }
+
+    logAuthEvent('GET_ADMIN', {adminId: admin.id});
+    return {
+        success: true,
+        data: {
+            id: admin.id,
+            username: admin.username,
+        },
     };
 };

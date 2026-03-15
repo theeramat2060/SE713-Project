@@ -1209,6 +1209,16 @@ readonly fields: UserFieldRefs;
  * https://github.com/prisma/prisma-client-js/issues/707
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  created_at: Date
+  constituency_id: number
+  role: string
+  address: string
+  last_name: string
+  first_name: string
+  title: string
+  password: string
+  id: string
+  national_id: string
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Constituency<T extends Prisma.ConstituencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConstituencyDefaultArgs<ExtArgs>>): Prisma.Prisma__ConstituencyClient<runtime.Types.Result.GetResult<Prisma.$ConstituencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Vote<T extends Prisma.User$VoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$VoteArgs<ExtArgs>>): Prisma.Prisma__VoteClient<runtime.Types.Result.GetResult<Prisma.$VotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
