@@ -44,6 +44,15 @@ router.get('/candidates/:userId', async (req: Request, res: Response) => {
   try {
     const userId = String(req.params.userId);
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid user ID format',
+      });
+    }
+
     const result = await voteService.getCandidate(userId);
 
     if (!result.success) {

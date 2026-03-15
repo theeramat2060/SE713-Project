@@ -150,14 +150,37 @@ router.post('/admin/login', validateAdminLogin, async (req: Request, res: Respon
         } as AuthApiResponse);
     }
 
-    res.status(200).json({
-        success: true,
-        token: result.data!.token,
-        admin: result.data!.admin ? {
-            id: result.data!.admin!.id,
-            username: result.data!.admin!.username,
-        } : undefined,
-    } as AuthApiResponse);
+    // Check if it's an admin or EC user
+    if (result.data!.admin) {
+        // Admin user response
+        res.status(200).json({
+            success: true,
+            token: result.data!.token,
+            admin: {
+                id: result.data!.admin!.id,
+                username: result.data!.admin!.username,
+            },
+        } as AuthApiResponse);
+    } else if (result.data!.user) {
+        // EC user response
+        res.status(200).json({
+            success: true,
+            token: result.data!.token,
+            user: {
+                id: result.data!.user!.id,
+                nationalId: result.data!.user!.nationalId,
+                title: result.data!.user!.title,
+                firstName: result.data!.user!.firstName,
+                lastName: result.data!.user!.lastName,
+                role: result.data!.user!.role,
+            },
+        } as AuthApiResponse);
+    } else {
+        res.status(500).json({
+            success: false,
+            error: 'Invalid login response',
+        } as AuthApiResponse);
+    }
 });
 
 export default router;

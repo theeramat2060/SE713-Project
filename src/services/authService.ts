@@ -131,9 +131,40 @@ export const registerAdmin = async (data: RegisterAdminRequest): Promise<Service
 };
 
 export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult<AuthTokenResponse>> => {
-    const admin = await adminRepository.findAdminByUsername(data.username);
+    // First try to find Admin user by username
+    let admin = await adminRepository.findAdminByUsername(data.username);
 
-    if (!admin) {
+    if (admin) {
+        // Admin user found
+        const isPasswordValid = await bcrypt.compare(data.password, admin.password);
+
+        if (!isPasswordValid) {
+            logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', adminId: admin.id});
+            return {
+                success: false,
+                error: {
+                    message: 'Invalid credentials',
+                    code: 401,
+                },
+            };
+        }
+
+        const token = generateToken({
+            adminId: admin.id,
+            role: 'ADMIN',
+        });
+
+        logAuthEvent('ADMIN_LOGIN', {adminId: admin.id});
+        return {
+            success: true,
+            data: {token, admin},
+        };
+    }
+
+    // If not found as admin, try to find as EC user by national ID
+    const ecUser = await userRepository.findUserByNationalId(data.username);
+
+    if (!ecUser || ecUser.role !== 'EC') {
         logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid credentials', username: data.username});
         return {
             success: false,
@@ -144,10 +175,11 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
         };
     }
 
-    const isPasswordValid = await bcrypt.compare(data.password, admin.password);
+    // EC user found, validate password
+    const isPasswordValid = await bcrypt.compare(data.password, ecUser.password);
 
     if (!isPasswordValid) {
-        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', adminId: admin.id});
+        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', userId: ecUser.id});
         return {
             success: false,
             error: {
@@ -158,14 +190,16 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
     }
 
     const token = generateToken({
-        adminId: admin.id,
-        role: 'ADMIN',
+        userId: ecUser.id,
+        role: ecUser.role,
+        constituencyId: ecUser.constituency_id,
     });
 
-    logAuthEvent('ADMIN_LOGIN', {adminId: admin.id});
+    logAuthEvent('EC_LOGIN', {userId: ecUser.id, role: ecUser.role});
     return {
         success: true,
-        data: {token, admin},
+        // @ts-ignore
+        data: {token, user: ecUser},
     };
 };
 
