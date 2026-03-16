@@ -39,16 +39,17 @@ export const updateUserRole = async (adminId: number, newRole: string): Promise<
 }
 
 
-export const addConstituency = async (data:any): Promise<void> => {
-    await prisma.$queryRaw`
-        INSERT INTO "Constituency" (name, province, district_number, is_closed)
-        VALUES (${data.name}, ${data.province}, ${data.district_number}, is_closed=false)
+export const addConstituency = async (data:any): Promise<any> => {
+    const result = await prisma.$queryRaw<any[]>`
+        INSERT INTO "Constituency" (province, district_number, is_closed)
+        VALUES (${data.province}, ${data.district_number}, ${data.is_closed}) RETURNING *
     `;
+    return result[0]?? null;
 };
 
-export const removeConstituency = async (id: number): Promise<void> => {
+export const removeConstituency = async (province: string, district_number: number): Promise<void> => {
     await prisma.$queryRaw`
         DELETE FROM "Constituency"
-        WHERE id = ${id}
+        WHERE province = ${province} AND district_number = ${district_number}
     `;
 };
