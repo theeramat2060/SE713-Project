@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import * as EC from '../repositories/ecRepository';
 import { Admin } from '../models';
-import {
-    CloseVotingRequest,ServiceResult
-} from '../dto/ecDTO';
+import * as ecRepo from '../dto/ecDTO';
 import * as publicService from './publicService';
 
 
@@ -15,10 +13,10 @@ const logECStaffEvent = (event: string, data: Record<string, any>) => {
 export class CloseVotingService {
     static async closeVoting(isClosed: boolean): Promise<{ success: boolean }> {
     logECStaffEvent('POST_CLOSE_VOTE', {});
-    const result = await publicService.getConstituencies();
-    if (result.data) {
-        for (let i = 0; i < result.data.length; i++) {
-            await EC.closeVotingForConstituency(result.data[i].id, isClosed);
+    const result = await publicService.getAllConstituencies();
+    if (result && result.length > 0) {
+        for (let i = 0; i < result.length; i++) {
+            await EC.closeVotingForConstituency(result[i].id, isClosed);
         }
         return {
             success: true,
@@ -105,8 +103,8 @@ export class GetPartyBasicInfoService {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
             if (pageSize > 100) pageSize = 100; // Max 100 per page
-
-            const parties = await EC.getAllPartiesBasic(page, pageSize);
+            
+            const parties: any[] = await EC.getAllPartiesBasic(page, pageSize);
             const total = await EC.getPartiesCount();
             const totalPages = Math.ceil(total / pageSize);
 
@@ -267,6 +265,28 @@ export class UpdateCandidateService {
             return {
                 success: false,
                 message: 'Failed to update candidate',
+            };
+        }
+    }
+}
+
+export class AddCandidateService {
+    static async addCandidate(candidateData: any): Promise<{ success: boolean; message: string; data?: any }> {
+        // get user data by user id and check if the user exists and is not already a candidate
+        // if user exists and is not already a candidate, then add candidate by inserting into candidate table with user id and constituency id and party id
+        try {
+            const addedCandidate = await EC.addCandidate(candidateData);
+            console.log('Added candidate:', addedCandidate);
+            return {
+                success: true,
+                message: 'Candidate added successfully',
+                data: addedCandidate,
+            };
+        } catch (error) {
+            console.error('Error adding candidate:', error);
+            return {
+                success: false,
+                message: 'Failed to add candidate',
             };
         }
     }

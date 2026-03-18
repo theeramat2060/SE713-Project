@@ -44,3 +44,18 @@ export class RemoveConstituencyService {
         };
     }
 }
+
+export class CreateNewUserService {
+    static async createAdmin(data: any): Promise<{ success: boolean; message: string; data: any }> {
+        const result = await adminRepo.createNewUser(data);
+        if (result) {
+            return {
+                success: true,
+                message: 'Admin user created successfully',
+                data: result,
+            };
+        } else {
+            throw new Error('Failed to create admin user');
+        }
+    }
+}
