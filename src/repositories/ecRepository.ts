@@ -165,3 +165,12 @@ export const updateCandidate = async (id: number,updatedData: any): Promise<void
     `;
 };
 
+export const addCandidate = async (candidateData: any): Promise<void> => {
+    //update regular user to candidate by inserting into candidate table with user id and constituency id and party id
+    const { title, first_name, last_name, number, image_url, party_id, constituency_id } = candidateData;
+    await prisma.$queryRaw`
+        INSERT INTO "Candidate" (title, first_name, last_name, number, image_url, party_id, constituency_id)
+        VALUES (${title}, ${first_name}, ${last_name}, ${number}, ${image_url}, ${party_id}, ${constituency_id})
+    `;
+};
+

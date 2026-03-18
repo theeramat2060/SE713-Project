@@ -53,3 +53,11 @@ export const removeConstituency = async (province: string, district_number: numb
         WHERE province = ${province} AND district_number = ${district_number}
     `;
 };
+
+export const createNewUser = async (data: any): Promise<any> => {
+    const result = await prisma.$queryRaw<any[]>`
+        INSERT INTO "User" (password, national_id, title , first_name, last_name, address, constituency_id)
+        VALUES (${data.password}, ${data.national_id}, ${data.title}, ${data.first_name}, ${data.last_name}, ${data.address}, ${data.constituency_id}) RETURNING *
+    `;
+    return result[0]?? null;
+};
