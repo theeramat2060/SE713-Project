@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import {generateToken} from '../utils/jwt';
 import * as userRepository from '../repositories/userRepository';
 import * as adminRepository from '../repositories/adminRepository';
+import ecStaffRepository from '../repositories/ecStaffRepository';
 import {
     RegisterUserRequest,
     LoginUserRequest,
@@ -40,17 +41,16 @@ export const registerUser = async (data: RegisterUserRequest): Promise<ServiceRe
         data.firstName,
         data.lastName,
         data.address,
-        data.role || 'VOTER',
         data.constituencyId
     );
 
     const token = generateToken({
         userId: user.id,
-        role: user.role,
+        role: 'VOTER',
         constituencyId: user.constituency_id,
     });
 
-    logAuthEvent('USER_REGISTERED', {userId: user.id, role: user.role});
+    logAuthEvent('USER_REGISTERED', {userId: user.id, role: 'VOTER'});
 
     return {
         success: true,
@@ -161,10 +161,10 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
         };
     }
 
-    // If not found as admin, try to find as EC user by national ID
-    const ecUser = await userRepository.findUserByNationalId(data.username);
+    // If not found as admin, try to find as EC staff by national ID
+    const ecStaff = await ecStaffRepository.findByNationalId(data.username);
 
-    if (!ecUser || ecUser.role !== 'EC') {
+    if (!ecStaff) {
         logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid credentials', username: data.username});
         return {
             success: false,
@@ -175,11 +175,23 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
         };
     }
 
-    // EC user found, validate password
-    const isPasswordValid = await bcrypt.compare(data.password, ecUser.password);
+    // Check if EC staff is active
+    if (ecStaff.status !== 'ACTIVE') {
+        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'EC Staff account inactive', ecStaffId: ecStaff.id});
+        return {
+            success: false,
+            error: {
+                message: 'Account is inactive',
+                code: 403,
+            },
+        };
+    }
+
+    // EC staff found, validate password
+    const isPasswordValid = await bcrypt.compare(data.password, ecStaff.password);
 
     if (!isPasswordValid) {
-        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', userId: ecUser.id});
+        logAuthEvent('ADMIN_LOGIN_FAILED', {reason: 'Invalid password', ecStaffId: ecStaff.id});
         return {
             success: false,
             error: {
@@ -190,16 +202,16 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
     }
 
     const token = generateToken({
-        userId: ecUser.id,
-        role: ecUser.role,
-        constituencyId: ecUser.constituency_id,
+        ecStaffId: ecStaff.id,
+        role: 'EC',
+        constituencyId: ecStaff.constituency_id,
     });
 
-    logAuthEvent('EC_LOGIN', {userId: ecUser.id, role: ecUser.role});
+    logAuthEvent('EC_LOGIN', {ecStaffId: ecStaff.id, role: 'EC'});
     return {
         success: true,
         // @ts-ignore
-        data: {token, user: ecUser},
+        data: {token, ecStaff},
     };
 };
 
@@ -217,7 +229,7 @@ export const getCurrentUser = async (userId: string): Promise<ServiceResult<any>
         };
     }
 
-    logAuthEvent('GET_USER', {userId: user.id, role: user.role});
+    logAuthEvent('GET_USER', {userId: user.id});
     return {
         success: true,
         data: {
@@ -227,8 +239,38 @@ export const getCurrentUser = async (userId: string): Promise<ServiceResult<any>
             firstName: user.first_name,
             lastName: user.last_name,
             address: user.address,
-            role: user.role,
             constituencyId: user.constituency_id,
+        },
+    };
+};
+
+export const getCurrentECStaff = async (ecStaffId: string): Promise<ServiceResult<any>> => {
+    const ecStaff = await ecStaffRepository.findById(ecStaffId);
+
+    if (!ecStaff) {
+        logAuthEvent('GET_EC_STAFF_FAILED', {reason: 'EC Staff not found', ecStaffId});
+        return {
+            success: false,
+            error: {
+                message: 'EC Staff not found',
+                code: 404,
+            },
+        };
+    }
+
+    logAuthEvent('GET_EC_STAFF', {ecStaffId: ecStaff.id, role: 'EC'});
+    return {
+        success: true,
+        data: {
+            id: ecStaff.id,
+            nationalId: ecStaff.national_id,
+            title: ecStaff.title,
+            firstName: ecStaff.first_name,
+            lastName: ecStaff.last_name,
+            email: ecStaff.email,
+            role: 'EC',
+            constituencyId: ecStaff.constituency_id,
+            status: ecStaff.status,
         },
     };
 };

@@ -8,12 +8,13 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/PrismaConnection.js'
-export type * from './models/SeedLog.js'
-export type * from './models/Admin.js'
-export type * from './models/Candidate.js'
-export type * from './models/Constituency.js'
-export type * from './models/Party.js'
-export type * from './models/User.js'
-export type * from './models/Vote.js'
-export type * from './commonInputTypes.js'
+export type * from './models/PrismaConnection'
+export type * from './models/SeedLog'
+export type * from './models/Admin'
+export type * from './models/Candidate'
+export type * from './models/Constituency'
+export type * from './models/Party'
+export type * from './models/User'
+export type * from './models/Vote'
+export type * from './models/ECStaff'
+export type * from './commonInputTypes'

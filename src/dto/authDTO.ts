@@ -40,10 +40,21 @@ export interface AdminAuthResponse {
     username: string;
 }
 
+export interface ECStaffAuthResponse {
+    id: string;
+    nationalId: string;
+    title: string;
+    firstName: string;
+    lastName: string;
+    email?: string;
+    role: 'EC';
+}
+
 export interface AuthTokenResponse {
     token: string;
     user?: UserAuthResponse;
     admin?: AdminAuthResponse;
+    ecStaff?: ECStaffAuthResponse;
 }
 
 export interface AuthApiResponse {
@@ -51,6 +62,7 @@ export interface AuthApiResponse {
     token?: string;
     user?: UserAuthResponse;
     admin?: AdminAuthResponse;
+    ecStaff?: ECStaffAuthResponse;
     error?: string;
 }
 

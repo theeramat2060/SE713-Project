@@ -9,7 +9,6 @@ export const createUser = async (
     firstName: string,
     lastName: string,
     address: string,
-    role: 'VOTER' | 'EC',
     constituencyId: number
 ): Promise<User> => {
     const userData = await prisma.user.create({
@@ -20,7 +19,6 @@ export const createUser = async (
             first_name: firstName,
             last_name: lastName,
             address: address,
-            role: role,
             constituency_id: constituencyId,
         },
     });
@@ -59,7 +57,6 @@ export const getUserWithConstituency = async (id: string): Promise<{
     first_name: string;
     last_name: string;
     address: string;
-    role: string | null;
     constituency_id: number | null;
     created_at: Date | null;
     province: any | null;
@@ -75,7 +72,6 @@ export const getUserWithConstituency = async (id: string): Promise<{
             first_name: true,
             last_name: true,
             address: true,
-            role: true,
             constituency_id: true,
             created_at: true,
             Constituency: {
@@ -97,7 +93,6 @@ export const getUserWithConstituency = async (id: string): Promise<{
         first_name: user.first_name,
         last_name: user.last_name,
         address: user.address,
-        role: user.role ?? null,
         constituency_id: user.constituency_id ?? null,
         created_at: user.created_at ?? null,
         province: user.Constituency?.province ?? null,

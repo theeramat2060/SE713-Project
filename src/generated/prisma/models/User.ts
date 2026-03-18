@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.js"
-import type * as Prisma from "../internal/prismaNamespace.js"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model User
@@ -42,7 +42,6 @@ export type UserMinAggregateOutputType = {
   first_name: string | null
   last_name: string | null
   address: string | null
-  role: $Enums.user_role | null
   constituency_id: number | null
   created_at: Date | null
 }
@@ -55,7 +54,6 @@ export type UserMaxAggregateOutputType = {
   first_name: string | null
   last_name: string | null
   address: string | null
-  role: $Enums.user_role | null
   constituency_id: number | null
   created_at: Date | null
 }
@@ -68,7 +66,6 @@ export type UserCountAggregateOutputType = {
   first_name: number
   last_name: number
   address: number
-  role: number
   constituency_id: number
   created_at: number
   _all: number
@@ -91,7 +88,6 @@ export type UserMinAggregateInputType = {
   first_name?: true
   last_name?: true
   address?: true
-  role?: true
   constituency_id?: true
   created_at?: true
 }
@@ -104,7 +100,6 @@ export type UserMaxAggregateInputType = {
   first_name?: true
   last_name?: true
   address?: true
-  role?: true
   constituency_id?: true
   created_at?: true
 }
@@ -117,7 +112,6 @@ export type UserCountAggregateInputType = {
   first_name?: true
   last_name?: true
   address?: true
-  role?: true
   constituency_id?: true
   created_at?: true
   _all?: true
@@ -217,7 +211,6 @@ export type UserGroupByOutputType = {
   first_name: string
   last_name: string
   address: string
-  role: $Enums.user_role | null
   constituency_id: number
   created_at: Date | null
   _count: UserCountAggregateOutputType | null
@@ -253,7 +246,6 @@ export type UserWhereInput = {
   first_name?: Prisma.StringFilter<"User"> | string
   last_name?: Prisma.StringFilter<"User"> | string
   address?: Prisma.StringFilter<"User"> | string
-  role?: Prisma.Enumuser_roleNullableFilter<"User"> | $Enums.user_role | null
   constituency_id?: Prisma.IntFilter<"User"> | number
   created_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   Constituency?: Prisma.XOR<Prisma.ConstituencyScalarRelationFilter, Prisma.ConstituencyWhereInput>
@@ -268,7 +260,6 @@ export type UserOrderByWithRelationInput = {
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  role?: Prisma.SortOrderInput | Prisma.SortOrder
   constituency_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   Constituency?: Prisma.ConstituencyOrderByWithRelationInput
@@ -286,7 +277,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   first_name?: Prisma.StringFilter<"User"> | string
   last_name?: Prisma.StringFilter<"User"> | string
   address?: Prisma.StringFilter<"User"> | string
-  role?: Prisma.Enumuser_roleNullableFilter<"User"> | $Enums.user_role | null
   constituency_id?: Prisma.IntFilter<"User"> | number
   created_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   Constituency?: Prisma.XOR<Prisma.ConstituencyScalarRelationFilter, Prisma.ConstituencyWhereInput>
@@ -301,7 +291,6 @@ export type UserOrderByWithAggregationInput = {
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  role?: Prisma.SortOrderInput | Prisma.SortOrder
   constituency_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -322,7 +311,6 @@ export type UserScalarWhereWithAggregatesInput = {
   first_name?: Prisma.StringWithAggregatesFilter<"User"> | string
   last_name?: Prisma.StringWithAggregatesFilter<"User"> | string
   address?: Prisma.StringWithAggregatesFilter<"User"> | string
-  role?: Prisma.Enumuser_roleNullableWithAggregatesFilter<"User"> | $Enums.user_role | null
   constituency_id?: Prisma.IntWithAggregatesFilter<"User"> | number
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
@@ -335,7 +323,6 @@ export type UserCreateInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   created_at?: Date | string | null
   Constituency: Prisma.ConstituencyCreateNestedOneWithoutUserInput
   Vote?: Prisma.VoteCreateNestedOneWithoutUserInput
@@ -349,7 +336,6 @@ export type UserUncheckedCreateInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   constituency_id: number
   created_at?: Date | string | null
   Vote?: Prisma.VoteUncheckedCreateNestedOneWithoutUserInput
@@ -363,7 +349,6 @@ export type UserUpdateInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Constituency?: Prisma.ConstituencyUpdateOneRequiredWithoutUserNestedInput
   Vote?: Prisma.VoteUpdateOneWithoutUserNestedInput
@@ -377,7 +362,6 @@ export type UserUncheckedUpdateInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   constituency_id?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Vote?: Prisma.VoteUncheckedUpdateOneWithoutUserNestedInput
@@ -391,7 +375,6 @@ export type UserCreateManyInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   constituency_id: number
   created_at?: Date | string | null
 }
@@ -404,7 +387,6 @@ export type UserUpdateManyMutationInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -416,7 +398,6 @@ export type UserUncheckedUpdateManyInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   constituency_id?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -439,7 +420,6 @@ export type UserCountOrderByAggregateInput = {
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  role?: Prisma.SortOrder
   constituency_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
 }
@@ -456,7 +436,6 @@ export type UserMaxOrderByAggregateInput = {
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  role?: Prisma.SortOrder
   constituency_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
 }
@@ -469,7 +448,6 @@ export type UserMinOrderByAggregateInput = {
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  role?: Prisma.SortOrder
   constituency_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
 }
@@ -525,10 +503,6 @@ export type UserUncheckedUpdateManyWithoutConstituencyNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
-export type NullableEnumuser_roleFieldUpdateOperationsInput = {
-  set?: $Enums.user_role | null
-}
-
 export type UserCreateNestedOneWithoutVoteInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutVoteInput, Prisma.UserUncheckedCreateWithoutVoteInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutVoteInput
@@ -551,7 +525,6 @@ export type UserCreateWithoutConstituencyInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   created_at?: Date | string | null
   Vote?: Prisma.VoteCreateNestedOneWithoutUserInput
 }
@@ -564,7 +537,6 @@ export type UserUncheckedCreateWithoutConstituencyInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   created_at?: Date | string | null
   Vote?: Prisma.VoteUncheckedCreateNestedOneWithoutUserInput
 }
@@ -606,7 +578,6 @@ export type UserScalarWhereInput = {
   first_name?: Prisma.StringFilter<"User"> | string
   last_name?: Prisma.StringFilter<"User"> | string
   address?: Prisma.StringFilter<"User"> | string
-  role?: Prisma.Enumuser_roleNullableFilter<"User"> | $Enums.user_role | null
   constituency_id?: Prisma.IntFilter<"User"> | number
   created_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
 }
@@ -619,7 +590,6 @@ export type UserCreateWithoutVoteInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   created_at?: Date | string | null
   Constituency: Prisma.ConstituencyCreateNestedOneWithoutUserInput
 }
@@ -632,7 +602,6 @@ export type UserUncheckedCreateWithoutVoteInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   constituency_id: number
   created_at?: Date | string | null
 }
@@ -661,7 +630,6 @@ export type UserUpdateWithoutVoteInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Constituency?: Prisma.ConstituencyUpdateOneRequiredWithoutUserNestedInput
 }
@@ -674,7 +642,6 @@ export type UserUncheckedUpdateWithoutVoteInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   constituency_id?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -687,7 +654,6 @@ export type UserCreateManyConstituencyInput = {
   first_name: string
   last_name: string
   address: string
-  role?: $Enums.user_role | null
   created_at?: Date | string | null
 }
 
@@ -699,7 +665,6 @@ export type UserUpdateWithoutConstituencyInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Vote?: Prisma.VoteUpdateOneWithoutUserNestedInput
 }
@@ -712,7 +677,6 @@ export type UserUncheckedUpdateWithoutConstituencyInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Vote?: Prisma.VoteUncheckedUpdateOneWithoutUserNestedInput
 }
@@ -725,7 +689,6 @@ export type UserUncheckedUpdateManyWithoutConstituencyInput = {
   first_name?: Prisma.StringFieldUpdateOperationsInput | string
   last_name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableEnumuser_roleFieldUpdateOperationsInput | $Enums.user_role | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -739,7 +702,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   first_name?: boolean
   last_name?: boolean
   address?: boolean
-  role?: boolean
   constituency_id?: boolean
   created_at?: boolean
   Constituency?: boolean | Prisma.ConstituencyDefaultArgs<ExtArgs>
@@ -754,7 +716,6 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   first_name?: boolean
   last_name?: boolean
   address?: boolean
-  role?: boolean
   constituency_id?: boolean
   created_at?: boolean
   Constituency?: boolean | Prisma.ConstituencyDefaultArgs<ExtArgs>
@@ -768,7 +729,6 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   first_name?: boolean
   last_name?: boolean
   address?: boolean
-  role?: boolean
   constituency_id?: boolean
   created_at?: boolean
   Constituency?: boolean | Prisma.ConstituencyDefaultArgs<ExtArgs>
@@ -782,12 +742,11 @@ export type UserSelectScalar = {
   first_name?: boolean
   last_name?: boolean
   address?: boolean
-  role?: boolean
   constituency_id?: boolean
   created_at?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "national_id" | "password" | "title" | "first_name" | "last_name" | "address" | "role" | "constituency_id" | "created_at", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "national_id" | "password" | "title" | "first_name" | "last_name" | "address" | "constituency_id" | "created_at", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Constituency?: boolean | Prisma.ConstituencyDefaultArgs<ExtArgs>
   Vote?: boolean | Prisma.User$VoteArgs<ExtArgs>
@@ -813,7 +772,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     first_name: string
     last_name: string
     address: string
-    role: $Enums.user_role | null
     constituency_id: number
     created_at: Date | null
   }, ExtArgs["result"]["user"]>
@@ -1209,16 +1167,6 @@ readonly fields: UserFieldRefs;
  * https://github.com/prisma/prisma-client-js/issues/707
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-  created_at: Date
-  constituency_id: number
-  role: string
-  address: string
-  last_name: string
-  first_name: string
-  title: string
-  password: string
-  id: string
-  national_id: string
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Constituency<T extends Prisma.ConstituencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConstituencyDefaultArgs<ExtArgs>>): Prisma.Prisma__ConstituencyClient<runtime.Types.Result.GetResult<Prisma.$ConstituencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Vote<T extends Prisma.User$VoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$VoteArgs<ExtArgs>>): Prisma.Prisma__VoteClient<runtime.Types.Result.GetResult<Prisma.$VotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -1258,7 +1206,6 @@ export interface UserFieldRefs {
   readonly first_name: Prisma.FieldRef<"User", 'String'>
   readonly last_name: Prisma.FieldRef<"User", 'String'>
   readonly address: Prisma.FieldRef<"User", 'String'>
-  readonly role: Prisma.FieldRef<"User", 'user_role'>
   readonly constituency_id: Prisma.FieldRef<"User", 'Int'>
   readonly created_at: Prisma.FieldRef<"User", 'DateTime'>
 }

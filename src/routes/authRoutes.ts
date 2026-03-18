@@ -11,7 +11,7 @@ import {
 
 const router = Router();
 
-// Get current user/admin info
+// Get current user/admin/ec staff info
 router.get('/me', async (req: Request, res: Response) => {
     const authHeader = req.headers.authorization ?? '';
     const result = tokenService.verifyAuthToken(authHeader);
@@ -34,6 +34,18 @@ router.get('/me', async (req: Request, res: Response) => {
         return res.status(200).json({
             success: true,
             admin: adminResult.data,
+        } as AuthApiResponse);
+    } else if (result.data.role === 'EC' && result.data.ecStaffId) {
+        const ecStaffResult = await authService.getCurrentECStaff(result.data.ecStaffId);
+        if (!ecStaffResult.success) {
+            return res.status(ecStaffResult.error?.code || 500).json({
+                success: false,
+                error: ecStaffResult.error?.message || 'Failed to fetch EC staff data',
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            user: ecStaffResult.data,
         } as AuthApiResponse);
     } else if (result.data.userId) {
         const userResult = await authService.getCurrentUser(result.data.userId);
@@ -150,7 +162,7 @@ router.post('/admin/login', validateAdminLogin, async (req: Request, res: Respon
         } as AuthApiResponse);
     }
 
-    // Check if it's an admin or EC user
+    // Check if it's an admin or EC staff
     if (result.data!.admin) {
         // Admin user response
         res.status(200).json({
@@ -161,18 +173,19 @@ router.post('/admin/login', validateAdminLogin, async (req: Request, res: Respon
                 username: result.data!.admin!.username,
             },
         } as AuthApiResponse);
-    } else if (result.data!.user) {
-        // EC user response
+    } else if (result.data!.ecStaff) {
+        // EC staff response
         res.status(200).json({
             success: true,
             token: result.data!.token,
             user: {
-                id: result.data!.user!.id,
-                nationalId: result.data!.user!.nationalId,
-                title: result.data!.user!.title,
-                firstName: result.data!.user!.firstName,
-                lastName: result.data!.user!.lastName,
-                role: result.data!.user!.role,
+                id: result.data!.ecStaff!.id,
+                nationalId: result.data!.ecStaff!.national_id,
+                title: result.data!.ecStaff!.title,
+                firstName: result.data!.ecStaff!.first_name,
+                lastName: result.data!.ecStaff!.last_name,
+                role: 'EC',
+                email: result.data!.ecStaff!.email,
             },
         } as AuthApiResponse);
     } else {

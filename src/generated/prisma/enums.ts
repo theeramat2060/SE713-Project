@@ -10,8 +10,15 @@
 */
 
 export const user_role = {
-  VOTER: 'VOTER',
-  EC: 'EC'
+  VOTER: 'VOTER'
 } as const
 
 export type user_role = (typeof user_role)[keyof typeof user_role]
+
+
+export const ec_status = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE'
+} as const
+
+export type ec_status = (typeof ec_status)[keyof typeof ec_status]

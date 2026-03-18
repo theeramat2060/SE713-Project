@@ -4,6 +4,7 @@ import {constituencySeedData} from './constituencySeed';
 import {partySeedData} from './partySeed';
 import {candidateSeedData} from './candidateSeed';
 import {userSeedData} from './userSeed';
+import {ecStaffSeedData} from './ecStaffSeed';
 import {voteSeedData} from './voteSeed';
 import * as bcrypt from 'bcryptjs';
 
@@ -15,6 +16,7 @@ async function seed() {
         console.log('🗑️  Clearing existing data...');
         await prisma.$queryRaw`TRUNCATE TABLE "Vote" CASCADE`;
         await prisma.$queryRaw`TRUNCATE TABLE "Candidate" CASCADE`;
+        await prisma.$queryRaw`TRUNCATE TABLE "ECStaff" CASCADE`;
         await prisma.$queryRaw`TRUNCATE TABLE "User" CASCADE`;
         await prisma.$queryRaw`TRUNCATE TABLE "Party" CASCADE`;
         await prisma.$queryRaw`TRUNCATE TABLE "Constituency" CASCADE`;
@@ -69,11 +71,22 @@ async function seed() {
         for (const user of userSeedData) {
             const hashedPassword = await bcrypt.hash(user.password, 10);
             await prisma.$queryRaw`
-                INSERT INTO "User" (national_id, password, title, first_name, last_name, address, role, constituency_id, created_at)
-                VALUES (${user.national_id}, ${hashedPassword}, ${user.title}, ${user.first_name}, ${user.last_name}, ${user.address}, ${user.role}, ${user.constituency_id}, ${user.created_at})
+                INSERT INTO "User" (national_id, password, title, first_name, last_name, address, constituency_id, created_at)
+                VALUES (${user.national_id}, ${hashedPassword}, ${user.title}, ${user.first_name}, ${user.last_name}, ${user.address}, ${user.constituency_id}, ${user.created_at})
             `;
         }
         console.log(`✅ Inserted ${userSeedData.length} users`);
+
+        // 5.5 Seed EC Staff
+        console.log('\n📝 Seeding EC Staff...');
+        for (const ecStaff of ecStaffSeedData) {
+            const hashedPassword = await bcrypt.hash(ecStaff.password, 10);
+            await prisma.$queryRaw`
+                INSERT INTO "ECStaff" (national_id, password, title, first_name, last_name, email, constituency_id, status, admin_id, created_at, updated_at)
+                VALUES (${ecStaff.national_id}, ${hashedPassword}, ${ecStaff.title}, ${ecStaff.first_name}, ${ecStaff.last_name}, ${ecStaff.email}, ${ecStaff.constituency_id}, ${ecStaff.status}, ${ecStaff.admin_id}, ${ecStaff.created_at}, NOW())
+            `;
+        }
+        console.log(`✅ Inserted ${ecStaffSeedData.length} EC staff`);
 
         // 6. Seed Votes (get actual user and candidate IDs)
         console.log('\n📝 Seeding Votes...');
@@ -102,6 +115,7 @@ async function seed() {
         const partyCount = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM "Party"`;
         const candidateCount = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM "Candidate"`;
         const userCount = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM "User"`;
+        const ecStaffCount = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM "ECStaff"`;
         const voteCount = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM "Vote"`;
 
         console.log(`  Admins: ${adminCount[0]?.count}`);
@@ -109,6 +123,7 @@ async function seed() {
         console.log(`  Parties: ${partyCount[0]?.count}`);
         console.log(`  Candidates: ${candidateCount[0]?.count}`);
         console.log(`  Users: ${userCount[0]?.count}`);
+        console.log(`  EC Staff: ${ecStaffCount[0]?.count}`);
         console.log(`  Votes: ${voteCount[0]?.count}`);
 
         console.log('\n✨ Seeding completed successfully!\n');

@@ -23,6 +23,7 @@ model Admin {
   username   String    @unique @db.VarChar(255)
   password   String    @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamp(6)
+  ECStaff    ECStaff[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -54,6 +55,7 @@ model Constituency {
   created_at      DateTime?   @default(now()) @db.Timestamp(6)
   Candidate       Candidate[]
   User            User[]
+  ECStaff         ECStaff[]
 
   @@unique([province, district_number])
 }
@@ -77,7 +79,6 @@ model User {
   first_name      String       @db.VarChar(255)
   last_name       String       @db.VarChar(255)
   address         String
-  role            user_role?   @default(VOTER)
   constituency_id Int
   created_at      DateTime?    @default(now()) @db.Timestamp(6)
   Constituency    Constituency @relation(fields: [constituency_id], references: [id], onUpdate: NoAction)
@@ -85,7 +86,6 @@ model User {
 
   @@index([constituency_id], map: "idx_user_constituency_id")
   @@index([national_id], map: "idx_user_national_id")
-  @@index([role], map: "idx_user_role")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -103,7 +103,34 @@ model Vote {
   @@index([user_id], map: "idx_vote_user_id")
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ECStaff {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  admin_id        Int
+  national_id     String       @unique @db.VarChar(13)
+  password        String       @db.VarChar(255)
+  title           String       @db.VarChar(50)
+  first_name      String       @db.VarChar(255)
+  last_name       String       @db.VarChar(255)
+  email           String?      @db.VarChar(255)
+  constituency_id Int
+  status          ec_status?   @default(ACTIVE)
+  created_at      DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at      DateTime?    @default(now()) @db.Timestamp(6)
+  Admin           Admin        @relation(fields: [admin_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Constituency    Constituency @relation(fields: [constituency_id], references: [id], onUpdate: NoAction)
+
+  @@index([admin_id], map: "idx_ecstaff_admin_id")
+  @@index([national_id], map: "idx_ecstaff_national_id")
+  @@index([constituency_id], map: "idx_ecstaff_constituency_id")
+  @@index([status], map: "idx_ecstaff_status")
+}
+
 enum user_role {
   VOTER
-  EC
+}
+
+enum ec_status {
+  ACTIVE
+  INACTIVE
 }

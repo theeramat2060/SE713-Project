@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.js"
-import type * as Prisma from "../internal/prismaNamespace.js"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Constituency
@@ -222,6 +222,7 @@ export type ConstituencyWhereInput = {
   created_at?: Prisma.DateTimeNullableFilter<"Constituency"> | Date | string | null
   Candidate?: Prisma.CandidateListRelationFilter
   User?: Prisma.UserListRelationFilter
+  ECStaff?: Prisma.ECStaffListRelationFilter
 }
 
 export type ConstituencyOrderByWithRelationInput = {
@@ -232,6 +233,7 @@ export type ConstituencyOrderByWithRelationInput = {
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   Candidate?: Prisma.CandidateOrderByRelationAggregateInput
   User?: Prisma.UserOrderByRelationAggregateInput
+  ECStaff?: Prisma.ECStaffOrderByRelationAggregateInput
 }
 
 export type ConstituencyWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +248,7 @@ export type ConstituencyWhereUniqueInput = Prisma.AtLeast<{
   created_at?: Prisma.DateTimeNullableFilter<"Constituency"> | Date | string | null
   Candidate?: Prisma.CandidateListRelationFilter
   User?: Prisma.UserListRelationFilter
+  ECStaff?: Prisma.ECStaffListRelationFilter
 }, "id" | "province_district_number">
 
 export type ConstituencyOrderByWithAggregationInput = {
@@ -279,6 +282,7 @@ export type ConstituencyCreateInput = {
   created_at?: Date | string | null
   Candidate?: Prisma.CandidateCreateNestedManyWithoutConstituencyInput
   User?: Prisma.UserCreateNestedManyWithoutConstituencyInput
+  ECStaff?: Prisma.ECStaffCreateNestedManyWithoutConstituencyInput
 }
 
 export type ConstituencyUncheckedCreateInput = {
@@ -289,6 +293,7 @@ export type ConstituencyUncheckedCreateInput = {
   created_at?: Date | string | null
   Candidate?: Prisma.CandidateUncheckedCreateNestedManyWithoutConstituencyInput
   User?: Prisma.UserUncheckedCreateNestedManyWithoutConstituencyInput
+  ECStaff?: Prisma.ECStaffUncheckedCreateNestedManyWithoutConstituencyInput
 }
 
 export type ConstituencyUpdateInput = {
@@ -298,6 +303,7 @@ export type ConstituencyUpdateInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Candidate?: Prisma.CandidateUpdateManyWithoutConstituencyNestedInput
   User?: Prisma.UserUpdateManyWithoutConstituencyNestedInput
+  ECStaff?: Prisma.ECStaffUpdateManyWithoutConstituencyNestedInput
 }
 
 export type ConstituencyUncheckedUpdateInput = {
@@ -308,6 +314,7 @@ export type ConstituencyUncheckedUpdateInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Candidate?: Prisma.CandidateUncheckedUpdateManyWithoutConstituencyNestedInput
   User?: Prisma.UserUncheckedUpdateManyWithoutConstituencyNestedInput
+  ECStaff?: Prisma.ECStaffUncheckedUpdateManyWithoutConstituencyNestedInput
 }
 
 export type ConstituencyCreateManyInput = {
@@ -409,12 +416,27 @@ export type ConstituencyUpdateOneRequiredWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ConstituencyUpdateToOneWithWhereWithoutUserInput, Prisma.ConstituencyUpdateWithoutUserInput>, Prisma.ConstituencyUncheckedUpdateWithoutUserInput>
 }
 
+export type ConstituencyCreateNestedOneWithoutECStaffInput = {
+  create?: Prisma.XOR<Prisma.ConstituencyCreateWithoutECStaffInput, Prisma.ConstituencyUncheckedCreateWithoutECStaffInput>
+  connectOrCreate?: Prisma.ConstituencyCreateOrConnectWithoutECStaffInput
+  connect?: Prisma.ConstituencyWhereUniqueInput
+}
+
+export type ConstituencyUpdateOneRequiredWithoutECStaffNestedInput = {
+  create?: Prisma.XOR<Prisma.ConstituencyCreateWithoutECStaffInput, Prisma.ConstituencyUncheckedCreateWithoutECStaffInput>
+  connectOrCreate?: Prisma.ConstituencyCreateOrConnectWithoutECStaffInput
+  upsert?: Prisma.ConstituencyUpsertWithoutECStaffInput
+  connect?: Prisma.ConstituencyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConstituencyUpdateToOneWithWhereWithoutECStaffInput, Prisma.ConstituencyUpdateWithoutECStaffInput>, Prisma.ConstituencyUncheckedUpdateWithoutECStaffInput>
+}
+
 export type ConstituencyCreateWithoutCandidateInput = {
   province: string
   district_number: number
   is_closed?: boolean | null
   created_at?: Date | string | null
   User?: Prisma.UserCreateNestedManyWithoutConstituencyInput
+  ECStaff?: Prisma.ECStaffCreateNestedManyWithoutConstituencyInput
 }
 
 export type ConstituencyUncheckedCreateWithoutCandidateInput = {
@@ -424,6 +446,7 @@ export type ConstituencyUncheckedCreateWithoutCandidateInput = {
   is_closed?: boolean | null
   created_at?: Date | string | null
   User?: Prisma.UserUncheckedCreateNestedManyWithoutConstituencyInput
+  ECStaff?: Prisma.ECStaffUncheckedCreateNestedManyWithoutConstituencyInput
 }
 
 export type ConstituencyCreateOrConnectWithoutCandidateInput = {
@@ -448,6 +471,7 @@ export type ConstituencyUpdateWithoutCandidateInput = {
   is_closed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUpdateManyWithoutConstituencyNestedInput
+  ECStaff?: Prisma.ECStaffUpdateManyWithoutConstituencyNestedInput
 }
 
 export type ConstituencyUncheckedUpdateWithoutCandidateInput = {
@@ -457,6 +481,7 @@ export type ConstituencyUncheckedUpdateWithoutCandidateInput = {
   is_closed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUncheckedUpdateManyWithoutConstituencyNestedInput
+  ECStaff?: Prisma.ECStaffUncheckedUpdateManyWithoutConstituencyNestedInput
 }
 
 export type ConstituencyCreateWithoutUserInput = {
@@ -465,6 +490,7 @@ export type ConstituencyCreateWithoutUserInput = {
   is_closed?: boolean | null
   created_at?: Date | string | null
   Candidate?: Prisma.CandidateCreateNestedManyWithoutConstituencyInput
+  ECStaff?: Prisma.ECStaffCreateNestedManyWithoutConstituencyInput
 }
 
 export type ConstituencyUncheckedCreateWithoutUserInput = {
@@ -474,6 +500,7 @@ export type ConstituencyUncheckedCreateWithoutUserInput = {
   is_closed?: boolean | null
   created_at?: Date | string | null
   Candidate?: Prisma.CandidateUncheckedCreateNestedManyWithoutConstituencyInput
+  ECStaff?: Prisma.ECStaffUncheckedCreateNestedManyWithoutConstituencyInput
 }
 
 export type ConstituencyCreateOrConnectWithoutUserInput = {
@@ -498,6 +525,7 @@ export type ConstituencyUpdateWithoutUserInput = {
   is_closed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Candidate?: Prisma.CandidateUpdateManyWithoutConstituencyNestedInput
+  ECStaff?: Prisma.ECStaffUpdateManyWithoutConstituencyNestedInput
 }
 
 export type ConstituencyUncheckedUpdateWithoutUserInput = {
@@ -507,6 +535,61 @@ export type ConstituencyUncheckedUpdateWithoutUserInput = {
   is_closed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Candidate?: Prisma.CandidateUncheckedUpdateManyWithoutConstituencyNestedInput
+  ECStaff?: Prisma.ECStaffUncheckedUpdateManyWithoutConstituencyNestedInput
+}
+
+export type ConstituencyCreateWithoutECStaffInput = {
+  province: string
+  district_number: number
+  is_closed?: boolean | null
+  created_at?: Date | string | null
+  Candidate?: Prisma.CandidateCreateNestedManyWithoutConstituencyInput
+  User?: Prisma.UserCreateNestedManyWithoutConstituencyInput
+}
+
+export type ConstituencyUncheckedCreateWithoutECStaffInput = {
+  id?: number
+  province: string
+  district_number: number
+  is_closed?: boolean | null
+  created_at?: Date | string | null
+  Candidate?: Prisma.CandidateUncheckedCreateNestedManyWithoutConstituencyInput
+  User?: Prisma.UserUncheckedCreateNestedManyWithoutConstituencyInput
+}
+
+export type ConstituencyCreateOrConnectWithoutECStaffInput = {
+  where: Prisma.ConstituencyWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConstituencyCreateWithoutECStaffInput, Prisma.ConstituencyUncheckedCreateWithoutECStaffInput>
+}
+
+export type ConstituencyUpsertWithoutECStaffInput = {
+  update: Prisma.XOR<Prisma.ConstituencyUpdateWithoutECStaffInput, Prisma.ConstituencyUncheckedUpdateWithoutECStaffInput>
+  create: Prisma.XOR<Prisma.ConstituencyCreateWithoutECStaffInput, Prisma.ConstituencyUncheckedCreateWithoutECStaffInput>
+  where?: Prisma.ConstituencyWhereInput
+}
+
+export type ConstituencyUpdateToOneWithWhereWithoutECStaffInput = {
+  where?: Prisma.ConstituencyWhereInput
+  data: Prisma.XOR<Prisma.ConstituencyUpdateWithoutECStaffInput, Prisma.ConstituencyUncheckedUpdateWithoutECStaffInput>
+}
+
+export type ConstituencyUpdateWithoutECStaffInput = {
+  province?: Prisma.StringFieldUpdateOperationsInput | string
+  district_number?: Prisma.IntFieldUpdateOperationsInput | number
+  is_closed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Candidate?: Prisma.CandidateUpdateManyWithoutConstituencyNestedInput
+  User?: Prisma.UserUpdateManyWithoutConstituencyNestedInput
+}
+
+export type ConstituencyUncheckedUpdateWithoutECStaffInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  province?: Prisma.StringFieldUpdateOperationsInput | string
+  district_number?: Prisma.IntFieldUpdateOperationsInput | number
+  is_closed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Candidate?: Prisma.CandidateUncheckedUpdateManyWithoutConstituencyNestedInput
+  User?: Prisma.UserUncheckedUpdateManyWithoutConstituencyNestedInput
 }
 
 
@@ -517,11 +600,13 @@ export type ConstituencyUncheckedUpdateWithoutUserInput = {
 export type ConstituencyCountOutputType = {
   Candidate: number
   User: number
+  ECStaff: number
 }
 
 export type ConstituencyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Candidate?: boolean | ConstituencyCountOutputTypeCountCandidateArgs
   User?: boolean | ConstituencyCountOutputTypeCountUserArgs
+  ECStaff?: boolean | ConstituencyCountOutputTypeCountECStaffArgs
 }
 
 /**
@@ -548,6 +633,13 @@ export type ConstituencyCountOutputTypeCountUserArgs<ExtArgs extends runtime.Typ
   where?: Prisma.UserWhereInput
 }
 
+/**
+ * ConstituencyCountOutputType without action
+ */
+export type ConstituencyCountOutputTypeCountECStaffArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ECStaffWhereInput
+}
+
 
 export type ConstituencySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -557,6 +649,7 @@ export type ConstituencySelect<ExtArgs extends runtime.Types.Extensions.Internal
   created_at?: boolean
   Candidate?: boolean | Prisma.Constituency$CandidateArgs<ExtArgs>
   User?: boolean | Prisma.Constituency$UserArgs<ExtArgs>
+  ECStaff?: boolean | Prisma.Constituency$ECStaffArgs<ExtArgs>
   _count?: boolean | Prisma.ConstituencyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["constituency"]>
 
@@ -588,6 +681,7 @@ export type ConstituencyOmit<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type ConstituencyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Candidate?: boolean | Prisma.Constituency$CandidateArgs<ExtArgs>
   User?: boolean | Prisma.Constituency$UserArgs<ExtArgs>
+  ECStaff?: boolean | Prisma.Constituency$ECStaffArgs<ExtArgs>
   _count?: boolean | Prisma.ConstituencyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ConstituencyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -598,6 +692,7 @@ export type $ConstituencyPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     Candidate: Prisma.$CandidatePayload<ExtArgs>[]
     User: Prisma.$UserPayload<ExtArgs>[]
+    ECStaff: Prisma.$ECStaffPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1001,6 +1096,7 @@ export interface Prisma__ConstituencyClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Candidate<T extends Prisma.Constituency$CandidateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Constituency$CandidateArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   User<T extends Prisma.Constituency$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Constituency$UserArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ECStaff<T extends Prisma.Constituency$ECStaffArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Constituency$ECStaffArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ECStaffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1468,6 +1564,30 @@ export type Constituency$UserArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+}
+
+/**
+ * Constituency.ECStaff
+ */
+export type Constituency$ECStaffArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ECStaff
+   */
+  select?: Prisma.ECStaffSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ECStaff
+   */
+  omit?: Prisma.ECStaffOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ECStaffInclude<ExtArgs> | null
+  where?: Prisma.ECStaffWhereInput
+  orderBy?: Prisma.ECStaffOrderByWithRelationInput | Prisma.ECStaffOrderByWithRelationInput[]
+  cursor?: Prisma.ECStaffWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ECStaffScalarFieldEnum | Prisma.ECStaffScalarFieldEnum[]
 }
 
 /**

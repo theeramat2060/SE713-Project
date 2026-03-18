@@ -16,10 +16,10 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "../models.js"
-import { type PrismaClient } from "./class.js"
+import type * as Prisma from "../models"
+import { type PrismaClient } from "./class"
 
-export type * from '../models.js'
+export type * from '../models'
 
 export type DMMF = typeof runtime.DMMF
 
@@ -391,7 +391,8 @@ export const ModelName = {
   Constituency: 'Constituency',
   Party: 'Party',
   User: 'User',
-  Vote: 'Vote'
+  Vote: 'Vote',
+  ECStaff: 'ECStaff'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "prismaConnection" | "seedLog" | "admin" | "candidate" | "constituency" | "party" | "user" | "vote"
+    modelProps: "prismaConnection" | "seedLog" | "admin" | "candidate" | "constituency" | "party" | "user" | "vote" | "eCStaff"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1003,6 +1004,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ECStaff: {
+      payload: Prisma.$ECStaffPayload<ExtArgs>
+      fields: Prisma.ECStaffFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ECStaffFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ECStaffFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>
+        }
+        findFirst: {
+          args: Prisma.ECStaffFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ECStaffFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>
+        }
+        findMany: {
+          args: Prisma.ECStaffFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>[]
+        }
+        create: {
+          args: Prisma.ECStaffCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>
+        }
+        createMany: {
+          args: Prisma.ECStaffCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ECStaffCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>[]
+        }
+        delete: {
+          args: Prisma.ECStaffDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>
+        }
+        update: {
+          args: Prisma.ECStaffUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>
+        }
+        deleteMany: {
+          args: Prisma.ECStaffDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ECStaffUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ECStaffUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>[]
+        }
+        upsert: {
+          args: Prisma.ECStaffUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ECStaffPayload>
+        }
+        aggregate: {
+          args: Prisma.ECStaffAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateECStaff>
+        }
+        groupBy: {
+          args: Prisma.ECStaffGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ECStaffGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ECStaffCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ECStaffCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1113,7 +1188,6 @@ export const UserScalarFieldEnum = {
   first_name: 'first_name',
   last_name: 'last_name',
   address: 'address',
-  role: 'role',
   constituency_id: 'constituency_id',
   created_at: 'created_at'
 } as const
@@ -1130,6 +1204,24 @@ export const VoteScalarFieldEnum = {
 } as const
 
 export type VoteScalarFieldEnum = (typeof VoteScalarFieldEnum)[keyof typeof VoteScalarFieldEnum]
+
+
+export const ECStaffScalarFieldEnum = {
+  id: 'id',
+  admin_id: 'admin_id',
+  national_id: 'national_id',
+  password: 'password',
+  title: 'title',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  constituency_id: 'constituency_id',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ECStaffScalarFieldEnum = (typeof ECStaffScalarFieldEnum)[keyof typeof ECStaffScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1212,16 +1304,16 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'user_role'
+ * Reference to a field of type 'ec_status'
  */
-export type Enumuser_roleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'user_role'>
+export type Enumec_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ec_status'>
     
 
 
 /**
- * Reference to a field of type 'user_role[]'
+ * Reference to a field of type 'ec_status[]'
  */
-export type ListEnumuser_roleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'user_role[]'>
+export type ListEnumec_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ec_status[]'>
     
 
 
@@ -1341,6 +1433,7 @@ export type GlobalOmitConfig = {
   party?: Prisma.PartyOmit
   user?: Prisma.UserOmit
   vote?: Prisma.VoteOmit
+  eCStaff?: Prisma.ECStaffOmit
 }
 
 /* Types for Logging */

@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.js'
-export type * from './prismaNamespace.js'
+export type * from '../models'
+export type * from './prismaNamespace'
 
 export const Decimal = runtime.Decimal
 
@@ -58,7 +58,8 @@ export const ModelName = {
   Constituency: 'Constituency',
   Party: 'Party',
   User: 'User',
-  Vote: 'Vote'
+  Vote: 'Vote',
+  ECStaff: 'ECStaff'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -148,7 +149,6 @@ export const UserScalarFieldEnum = {
   first_name: 'first_name',
   last_name: 'last_name',
   address: 'address',
-  role: 'role',
   constituency_id: 'constituency_id',
   created_at: 'created_at'
 } as const
@@ -165,6 +165,24 @@ export const VoteScalarFieldEnum = {
 } as const
 
 export type VoteScalarFieldEnum = (typeof VoteScalarFieldEnum)[keyof typeof VoteScalarFieldEnum]
+
+
+export const ECStaffScalarFieldEnum = {
+  id: 'id',
+  admin_id: 'admin_id',
+  national_id: 'national_id',
+  password: 'password',
+  title: 'title',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  constituency_id: 'constituency_id',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ECStaffScalarFieldEnum = (typeof ECStaffScalarFieldEnum)[keyof typeof ECStaffScalarFieldEnum]
 
 
 export const SortOrder = {

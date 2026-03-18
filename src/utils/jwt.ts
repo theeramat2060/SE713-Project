@@ -4,6 +4,7 @@ import {config} from '../config/env';
 interface TokenPayload {
     userId?: string;
     adminId?: number;
+    ecStaffId?: string;
     role: string;
     constituencyId?: number;
 }

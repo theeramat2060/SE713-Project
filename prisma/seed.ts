@@ -5,6 +5,7 @@ import { constituencySeedData } from '../src/db/seeds/constituencySeed.js';
 import { partySeedData } from '../src/db/seeds/partySeed.js';
 import { candidateSeedData } from '../src/db/seeds/candidateSeed.js';
 import { userSeedData } from '../src/db/seeds/userSeed.js';
+import { ecStaffSeedData } from '../src/db/seeds/ecStaffSeed.js';
 import { voteSeedData } from '../src/db/seeds/voteSeed.js';
 
 const pool = new Pool({
@@ -20,6 +21,7 @@ async function main() {
         console.log('🗑️  Clearing existing data...');
         await client.query('TRUNCATE TABLE "Vote" CASCADE');
         await client.query('TRUNCATE TABLE "Candidate" CASCADE');
+        await client.query('TRUNCATE TABLE "ECStaff" CASCADE');
         await client.query('TRUNCATE TABLE "User" CASCADE');
         await client.query('TRUNCATE TABLE "Party" CASCADE');
         await client.query('TRUNCATE TABLE "Constituency" CASCADE');
@@ -87,8 +89,8 @@ async function main() {
         for (const user of userSeedData) {
             const hashedPassword = await bcrypt.hash(user.password, 10);
             await client.query(
-                `INSERT INTO "User" (national_id, password, title, first_name, last_name, address, role, constituency_id, created_at) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                `INSERT INTO "User" (national_id, password, title, first_name, last_name, address, constituency_id, created_at) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
                 [
                     user.national_id,
                     hashedPassword,
@@ -96,13 +98,35 @@ async function main() {
                     user.first_name,
                     user.last_name,
                     user.address,
-                    user.role,
                     user.constituency_id,
                     user.created_at,
                 ]
             );
         }
         console.log(`✅ Inserted ${userSeedData.length} users`);
+
+        // 5.5 Seed EC Staff
+        console.log('\n📝 Seeding EC Staff...');
+        for (const ecStaff of ecStaffSeedData) {
+            const hashedPassword = await bcrypt.hash(ecStaff.password, 10);
+            await client.query(
+                `INSERT INTO "ECStaff" (national_id, password, title, first_name, last_name, email, constituency_id, status, admin_id, created_at, updated_at) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())`,
+                [
+                    ecStaff.national_id,
+                    hashedPassword,
+                    ecStaff.title,
+                    ecStaff.first_name,
+                    ecStaff.last_name,
+                    ecStaff.email,
+                    ecStaff.constituency_id,
+                    ecStaff.status,
+                    ecStaff.admin_id,
+                    ecStaff.created_at,
+                ]
+            );
+        }
+        console.log(`✅ Inserted ${ecStaffSeedData.length} EC staff`);
 
         // 6. Seed Votes (get actual user and candidate IDs)
         console.log('\n📝 Seeding Votes...');
@@ -135,6 +159,7 @@ async function main() {
         const partyCount = await client.query('SELECT COUNT(*) as count FROM "Party"');
         const candidateCount = await client.query('SELECT COUNT(*) as count FROM "Candidate"');
         const userCount = await client.query('SELECT COUNT(*) as count FROM "User"');
+        const ecStaffCount = await client.query('SELECT COUNT(*) as count FROM "ECStaff"');
         const voteCount = await client.query('SELECT COUNT(*) as count FROM "Vote"');
 
         console.log(`  Admins: ${adminCount.rows[0].count}`);
@@ -142,6 +167,7 @@ async function main() {
         console.log(`  Parties: ${partyCount.rows[0].count}`);
         console.log(`  Candidates: ${candidateCount.rows[0].count}`);
         console.log(`  Users: ${userCount.rows[0].count}`);
+        console.log(`  EC Staff: ${ecStaffCount.rows[0].count}`);
         console.log(`  Votes: ${voteCount.rows[0].count}`);
 
         console.log('\n✨ Seeding completed successfully!\n');
