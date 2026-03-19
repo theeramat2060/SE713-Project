@@ -110,7 +110,7 @@ router.get('/ec-staff/:id', async (req: Request, res: Response) => {
 });
 
 // Update EC Staff - Admin only
-router.put('/ec-staff/:id', async (req: Request, res: Response) => {
+router.post('/ec-staff/:id', async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { admin_id, ec_status, ...updateData } = req.body;

@@ -2,11 +2,52 @@ import e, { Router,Request,Response } from "express";
 import * as ecService from '../services/ecService';
 import * as publicService from '../services/publicService';
 import * as ecRepo from '../dto/ecDTO';
-
+import { upload } from '../middlewares/uploadMiddleware';
+import { uploadFile } from '../services/UploadFileService';
 
 // **Note:** `uploadMiddleware` and `uploadToSupabase()` utility already exist in `/src/middlewares/uploadMiddleware.ts` and `/src/utils/uploadUtils.ts`
 
 const router = Router();
+
+router.post('/upload', upload.single('file'), async (req: any, res: any) => {
+    
+    try {
+        const file = req.file;
+        if (!file) {
+            console.warn('⚠️  No file in request');
+            return res.status(400).json({
+                success: false,
+                error: 'No file uploaded.'
+            });
+        }
+        const bucket = 'election-bucket';
+        const filePath = `candidates`;
+        const fileKey = await uploadFile(bucket, filePath, file);
+        res.status(200).send(fileKey);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Error uploading file.'
+        });
+    }
+});
+
+router.get('/presignedUrl', async (req: Request, res: Response) => {
+    try {
+        const { key } = req.query;        
+        if (!key || typeof key !== 'string') {
+            return res.status(400).send('File key is required.');
+        }        
+        const bucket = 'images';
+        const { getPresignedUrl } = await import('../services/UploadFileService');
+        const presignedUrl = await getPresignedUrl(bucket, key, 3600);
+                res.status(200).json({ url: presignedUrl });
+} catch (error) {
+        console.error('Error generating presigned URL:', error);
+        res.status(500).send('Error generating presigned URL.');
+    }
+});
+
 
 router.post('/AddCandidates', async (req: Request, res: Response) => {
    const candidateData : ecRepo.AddCandidateData = req.body; //expecting user data and constituency id and party id
