@@ -33,7 +33,10 @@ router.get('/me', async (req: Request, res: Response) => {
         }
         return res.status(200).json({
             success: true,
-            admin: adminResult.data,
+            admin: {
+                ...adminResult.data,
+                role: 'ADMIN',
+            },
         } as AuthApiResponse);
     } else if (result.data.role === 'EC' && result.data.ecStaffId) {
         const ecStaffResult = await authService.getCurrentECStaff(result.data.ecStaffId);
@@ -45,7 +48,10 @@ router.get('/me', async (req: Request, res: Response) => {
         }
         return res.status(200).json({
             success: true,
-            user: ecStaffResult.data,
+            user: {
+                ...ecStaffResult.data,
+                role: 'EC',
+            },
         } as AuthApiResponse);
     } else if (result.data.userId) {
         const userResult = await authService.getCurrentUser(result.data.userId);
@@ -57,7 +63,10 @@ router.get('/me', async (req: Request, res: Response) => {
         }
         return res.status(200).json({
             success: true,
-            user: userResult.data,
+            user: {
+                ...userResult.data,
+                role: 'VOTER',
+            },
         } as AuthApiResponse);
     }
 
@@ -144,6 +153,7 @@ router.post('/admin/register', validateAdminRegistration, async (req: Request, r
         admin: result.data!.admin ? {
             id: result.data!.admin!.id,
             username: result.data!.admin!.username,
+            role: 'ADMIN',
         } : undefined,
     } as AuthApiResponse);
 });
@@ -171,6 +181,7 @@ router.post('/admin/login', validateAdminLogin, async (req: Request, res: Respon
             admin: {
                 id: result.data!.admin!.id,
                 username: result.data!.admin!.username,
+                role: 'ADMIN',
             },
         } as AuthApiResponse);
     } else if (result.data!.ecStaff) {
