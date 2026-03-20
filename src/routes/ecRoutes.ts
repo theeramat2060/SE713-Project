@@ -2,6 +2,8 @@ import e, { Router,Request,Response } from "express";
 import * as ecService from '../services/ecService';
 import * as publicService from '../services/publicService';
 import * as ecRepo from '../dto/ecDTO';
+import { verifyAuthToken } from '../services/tokenService';
+import * as EC from '../repositories/ecRepository';
 
 
 // **Note:** `uploadMiddleware` and `uploadToSupabase()` utility already exist in `/src/middlewares/uploadMiddleware.ts` and `/src/utils/uploadUtils.ts`
@@ -25,17 +27,47 @@ router.post('/AddCandidates', async (req: Request, res: Response) => {
 });
 
 router.post('/declare-results', async (req: Request, res: Response) => {
-    const data = await ecService.DeclareResultsService.declareResults();//expecting constituency id and winner candidate id
-    if (data.success) {
-        return res.status(200).json({
-            success: true,
-            message: data.message,
-            data: data.data,
-        });
-    } else {
-        return res.status(500).json({
+    try {
+        // Verify authentication - allow any authenticated role (Admin, EC Staff, Voter)
+        const authHeader = req.headers.authorization ?? '';
+        const tokenResult = verifyAuthToken(authHeader);
+        
+        if (!tokenResult.success || !tokenResult.data) {
+            return res.status(401).json({
+                success: false,
+                error: 'Authentication required. Please provide a valid token.',
+            });
+        }
+
+        // Check if ANY constituency has voting closed
+        const closedConstituencies = await EC.getClosedConstituencies();
+        
+        if (!closedConstituencies || closedConstituencies.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Voting is still open. Results can only be declared after voting is closed.',
+            });
+        }
+
+        // User is authenticated and voting is closed - proceed with declaring results
+        const data = await ecService.DeclareResultsService.declareResults();
+        
+        if (data.success) {
+            return res.status(200).json({
+                success: true,
+                message: data.message,
+                data: data.data,
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to declare results',
+            });
+        }
+    } catch (error: any) {
+        res.status(500).json({
             success: false,
-            error: 'Failed to declare results',
+            error: error.message || 'Failed to declare results',
         });
     }
 });
