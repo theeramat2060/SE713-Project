@@ -5,10 +5,52 @@ import * as ecRepo from '../dto/ecDTO';
 import { verifyAuthToken } from '../services/tokenService';
 import * as EC from '../repositories/ecRepository';
 
+import { upload } from '../middlewares/uploadMiddleware';
+import { uploadFile } from '../services/UploadFileService';
 
 // **Note:** `uploadMiddleware` and `uploadToSupabase()` utility already exist in `/src/middlewares/uploadMiddleware.ts` and `/src/utils/uploadUtils.ts`
 
 const router = Router();
+
+router.post('/upload', upload.single('file'), async (req: any, res: any) => {
+
+    try {
+        const file = req.file;
+        if (!file) {
+            console.warn('⚠️  No file in request');
+            return res.status(400).json({
+                success: false,
+                error: 'No file uploaded.'
+            });
+        }
+        const bucket = 'election-bucket';
+        const filePath = `candidates`;
+        const fileKey = await uploadFile(bucket, filePath, file);
+        res.status(200).send(fileKey);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Error uploading file.'
+        });
+    }
+});
+
+router.get('/presignedUrl', async (req: Request, res: Response) => {
+    try {
+        const { key } = req.query;
+        if (!key || typeof key !== 'string') {
+            return res.status(400).send('File key is required.');
+        }
+        const bucket = 'images';
+        const { getPresignedUrl } = await import('../services/UploadFileService');
+        const presignedUrl = await getPresignedUrl(bucket, key, 3600);
+                res.status(200).json({ url: presignedUrl });
+} catch (error) {
+        console.error('Error generating presigned URL:', error);
+        res.status(500).send('Error generating presigned URL.');
+    }
+});
+
 
 router.post('/AddCandidates', async (req: Request, res: Response) => {
    const candidateData : ecRepo.AddCandidateData = req.body; //expecting user data and constituency id and party id
@@ -31,7 +73,7 @@ router.post('/declare-results', async (req: Request, res: Response) => {
         // Verify authentication - allow any authenticated role (Admin, EC Staff, Voter)
         const authHeader = req.headers.authorization ?? '';
         const tokenResult = verifyAuthToken(authHeader);
-        
+
         if (!tokenResult.success || !tokenResult.data) {
             return res.status(401).json({
                 success: false,
@@ -41,7 +83,7 @@ router.post('/declare-results', async (req: Request, res: Response) => {
 
         // Check if ANY constituency has voting closed
         const closedConstituencies = await EC.getClosedConstituencies();
-        
+
         if (!closedConstituencies || closedConstituencies.length === 0) {
             return res.status(400).json({
                 success: false,
@@ -51,7 +93,7 @@ router.post('/declare-results', async (req: Request, res: Response) => {
 
         // User is authenticated and voting is closed - proceed with declaring results
         const data = await ecService.DeclareResultsService.declareResults();
-        
+
         if (data.success) {
             return res.status(200).json({
                 success: true,

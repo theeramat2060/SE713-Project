@@ -57,3 +57,4 @@ coverage/
 
 /src/generated/prisma
 docker-compose.yml
+src/awsConfig.ts
