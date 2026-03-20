@@ -55,7 +55,19 @@ export const registerUser = async (data: RegisterUserRequest): Promise<ServiceRe
     return {
         success: true,
         // @ts-ignore
-        data: {token, user},
+        data: {
+            token,
+            user: {
+                id: user.id,
+                nationalId: user.national_id,
+                title: user.title,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                address: user.address,
+                constituencyId: user.constituency_id,
+                role: 'VOTER',
+            },
+        },
     };
 };
 
@@ -92,11 +104,23 @@ export const loginUser = async (data: LoginUserRequest): Promise<ServiceResult<A
         constituencyId: user.constituency_id,
     });
 
-    logAuthEvent('USER_LOGIN', {userId: user.id, role: user.role});
+    logAuthEvent('USER_LOGIN', {userId: user.id, role: 'VOTER'});
     return {
         success: true,
         // @ts-ignore
-        data: {token, user},
+        data: {
+            token,
+            user: {
+                id: user.id,
+                nationalId: user.national_id,
+                title: user.title,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                address: user.address,
+                constituencyId: user.constituency_id,
+                role: 'VOTER',
+            },
+        },
     };
 };
 
@@ -240,6 +264,7 @@ export const getCurrentUser = async (userId: string): Promise<ServiceResult<any>
             lastName: user.last_name,
             address: user.address,
             constituencyId: user.constituency_id,
+            role: 'VOTER',
         },
     };
 };
