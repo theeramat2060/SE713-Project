@@ -13,9 +13,10 @@ import { uploadFile } from '../services/UploadFileService';
 const router = Router();
 
 router.post('/upload', upload.single('file'), async (req: any, res: any) => {
-
     try {
+        // This will check where the file is coming from and will keep the file on seperate folders in the bucket for candidates and parties
         const file = req.file;
+        
         if (!file) {
             console.warn('⚠️  No file in request');
             return res.status(400).json({
@@ -25,6 +26,16 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
         }
         const bucket = 'election-bucket';
         const filePath = `candidates`;
+        if(req.body.type === 'party'){
+            filePath = `parties`;
+        }
+        console.log('Received file:', {
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            bufferExists: !!file.buffer
+        });
+        console.log('Starting upload to S3 with bucket:', bucket, 'and filePath:', filePath);
         const fileKey = await uploadFile(bucket, filePath, file);
         res.status(200).send(fileKey);
     } catch (error: any) {
