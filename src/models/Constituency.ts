@@ -26,9 +26,9 @@ export class ConstituencyModel {
      */
     isValid(): boolean {
         return !!(this.id > 0 && 
-                  this.province && 
-                  this.province.length > 0 &&
-                  this.district_number > 0);
+                this.province && 
+                this.province.length > 0 &&
+                this.district_number > 0);
     }
 
     /**

@@ -16,7 +16,6 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
     try {
         // This will check where the file is coming from and will keep the file on seperate folders in the bucket for candidates and parties
         const file = req.file;
-        
         if (!file) {
             console.warn('⚠️  No file in request');
             return res.status(400).json({
@@ -25,7 +24,7 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
             });
         }
         const bucket = 'election-bucket';
-        const filePath = `candidates`;
+        let filePath = `candidates`;
         if(req.body.type === 'party'){
             filePath = `parties`;
         }
