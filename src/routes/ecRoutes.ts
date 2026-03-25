@@ -12,6 +12,39 @@ import { uploadFile } from '../services/UploadFileService';
 
 const router = Router();
 
+const resolveUploadFolder = (typeValue: unknown, fallback: 'candidates' | 'parties' = 'candidates'): 'candidates' | 'parties' => {
+    if (typeof typeValue !== 'string') {
+        return fallback;
+    }
+
+    const normalized = typeValue.trim().toLowerCase();
+    if (normalized === 'party' || normalized === 'parties') {
+        return 'parties';
+    }
+
+    if (normalized === 'candidate' || normalized === 'candidates') {
+        return 'candidates';
+    }
+
+    return fallback;
+};
+
+const uploadImageIfProvided = async (
+    req: any,
+    fallbackFolder: 'candidates' | 'parties' = 'candidates'
+): Promise<string | undefined> => {
+    const file = req.file;
+    if (!file) {
+        return undefined;
+    }
+
+    const bucket = 'election-bucket';
+    const filePath = resolveUploadFolder(req.body?.type, fallbackFolder);
+    console.log('Starting upload to S3 with bucket:', bucket, 'and filePath:', filePath);
+    const fileKey = await uploadFile(bucket, filePath, file);
+    return fileKey;
+};
+
 router.post('/upload', upload.single('file'), async (req: any, res: any) => {
     try {
         // This will check where the file is coming from and will keep the file on seperate folders in the bucket for candidates and parties
@@ -24,10 +57,7 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
             });
         }
         const bucket = 'election-bucket';
-        let filePath = `candidates`;
-        if(req.body.type === 'party'){
-            filePath = `parties`;
-        }
+        const filePath = resolveUploadFolder(req.body?.type, 'candidates');
         console.log('Received file:', {
             originalname: file.originalname,
             mimetype: file.mimetype,
@@ -62,13 +92,29 @@ router.get('/presignedUrl', async (req: Request, res: Response) => {
 });
 
 
-router.post('/AddCandidates', async (req: Request, res: Response) => {
-   const candidateData : ecRepo.AddCandidateData = req.body; //expecting user data and constituency id and party id
+router.post('/AddCandidates', upload.single('file'), async (req: any, res: Response) => {
+    const uploadedImageKey = await uploadImageIfProvided(req, 'candidates');
+   const candidateData : ecRepo.AddCandidateData = {
+        ...req.body,
+        number: Number(req.body.number),
+        party_id: Number(req.body.party_id),
+        constituency_id: Number(req.body.constituency_id),
+        image_url: uploadedImageKey ?? req.body.image_url,
+   }; //expecting user data and constituency id and party id
+
+   if (!candidateData.image_url) {
+        return res.status(400).json({
+            success: false,
+            error: 'image_url or file is required',
+        });
+   }
+
     const result = await ecService.AddCandidateService.addCandidate(candidateData);
     if (result.success) {
     res.status(201).json({
         success: true,
-        message: 'Candidate created successfully ',
+        message: 'Candidate created successfully',
+        data: result.data,
     });
 } else {
     res.status(500).json({
@@ -182,8 +228,12 @@ router.get('/get-all-party', async (req: Request, res: Response) => {
     });
 });
 
-router.post('/create-party', async (req: Request, res: Response) => {
-const data : ecRepo.CreatePartyRequest = req.body;//expecting name, logo_url, policy
+router.post('/create-party', upload.single('file'), async (req: any, res: Response) => {
+const uploadedLogoKey = await uploadImageIfProvided(req, 'parties');
+const data : ecRepo.CreatePartyRequest = {
+    ...req.body,
+    logo_url: uploadedLogoKey ?? req.body.logo_url,
+};//expecting name, logo_url, policy
 if (!data.name || !data.logo_url || !data.policy) {
     return res.status(400).json({
         success: false,
@@ -265,17 +315,25 @@ router.post('/get-candidate', async (req: Request, res: Response) => {
 
 //Update everything of candidate except id, including photo, name, number, party, constituency
 //Totest
-router.post('/update-candidate/:id', async (req: Request, res: Response) => {
-const candidateId = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
+router.post('/update-candidate/:id', upload.single('file'), async (req: any, res: Response) => {
+const candidateId = Number(req.params.id);
+if (!Number.isFinite(candidateId)) {
+    return res.status(400).json({
+        success: false,
+        error: 'Invalid candidate id',
+    });
+}
+
+const uploadedImageKey = await uploadImageIfProvided(req, 'candidates');
 const { title, first_name, last_name, number, image_url, party_id, constituency_id } = req.body;
 const updateData = {
     title,
     first_name,
     last_name,
-    number,
-    image_url,
-    party_id,
-    constituency_id
+    number: Number(number),
+    image_url: uploadedImageKey ?? image_url,
+    party_id: Number(party_id),
+    constituency_id: Number(constituency_id)
 };
 const result = await ecService.UpdateCandidateService.updateCandidate(candidateId, updateData);
     if (result.success) {
