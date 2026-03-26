@@ -47,7 +47,6 @@ const uploadImageIfProvided = async (
 
 router.post('/upload', upload.single('file'), async (req: any, res: any) => {
     try {
-        // This will check where the file is coming from and will keep the file on seperate folders in the bucket for candidates and parties
         const file = req.file;
         if (!file) {
             console.warn('⚠️  No file in request');
@@ -100,7 +99,7 @@ router.post('/AddCandidates', upload.single('file'), async (req: any, res: Respo
         party_id: Number(req.body.party_id),
         constituency_id: Number(req.body.constituency_id),
         image_url: uploadedImageKey ?? req.body.image_url,
-   }; //expecting user data and constituency id and party id
+   }; 
 
    if (!candidateData.image_url) {
         return res.status(400).json({
@@ -187,6 +186,20 @@ router.get('/open-constituencies', async (req: Request, res: Response) => {
 
 });
 
+router.get('/election-stats', async (req: Request, res: Response) => {
+    const result = await ecService.GetElectionStatsService.getStats();
+    if (!result.success) {
+        return res.status(500).json({
+            success: false,
+            error: result.error || 'Failed to fetch election stats',
+        });
+    }
+    res.status(200).json({
+        success: true,
+        data: result.data,
+    });
+});
+
 // POST /api/ec/update-voting - Update voting status
 router.post('/update-voting',  async (req: Request, res: Response) => {
     const data: ecRepo.CloseVotingRequest = req.body; //expecting isClosed boolean
@@ -233,7 +246,7 @@ const uploadedLogoKey = await uploadImageIfProvided(req, 'parties');
 const data : ecRepo.CreatePartyRequest = {
     ...req.body,
     logo_url: uploadedLogoKey ?? req.body.logo_url,
-};//expecting name, logo_url, policy
+};
 if (!data.name || !data.logo_url || !data.policy) {
     return res.status(400).json({
         success: false,
@@ -256,9 +269,15 @@ const result = await ecService.CreatePartyService.createParty(data.name, data.lo
 });
 
 router.delete('/delete-party/:id', async (req: Request, res: Response) => {
-const party : ecRepo.DeletePartyRequest = req.body;//expecting party id
-const result = await ecService.DeletePartyService.deleteParty(party.id);
-if (result.success) {
+    const id = parseInt(req.params.id) || req.body.id;
+    if (!id) {
+        return res.status(400).json({
+            success: false,
+            error: 'Party ID is required',
+        });
+    }
+    const result = await ecService.DeletePartyService.deleteParty(id);
+    if (result.success) {
         return res.status(200).json({
             success: true,
             message: 'Party deleted successfully',
@@ -302,7 +321,7 @@ router.delete('/delete-candidate/:id', async (req: Request, res: Response) => {
     }
 });
 
-//Get candidate to edit query for name like %kim% and constituency id = 1
+// get-candidate
 router.post('/get-candidate', async (req: Request, res: Response) => {
     const  data : ecRepo.GetCandidateForEditRequest = req.body;
     const result = await ecService.GetCandidateForEditService.getCandidateForEdit(data.name);
@@ -313,7 +332,7 @@ router.post('/get-candidate', async (req: Request, res: Response) => {
     });
 });
 
-//Update everything of candidate except id, including photo, name, number, party, constituency
+
 //Totest
 router.post('/update-candidate/:id', upload.single('file'), async (req: any, res: Response) => {
 const candidateId = Number(req.params.id);

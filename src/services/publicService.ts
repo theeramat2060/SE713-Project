@@ -28,12 +28,41 @@ export const getAllParties = async (): Promise<ServiceResult<PartyResponse[]>> =
         data: parties,
     };
 };
-export const getParties = async (id:number) => {
-    logPublicEvent('GET_ALL_PARTIES', {});
-    const parties = await partyRepository.findPartyById(id);
+export const getParties = async (id: number): Promise<ServiceResult<PartyDetailsResponse>> => {
+    logPublicEvent('GET_PARTY_DETAILS', { id });
+    const party = await partyRepository.findPartyById(id);
+    
+    if (!party) {
+        return {
+            success: false,
+            error: {
+                message: 'Party not found',
+                code: 404,
+            },
+        };
+    }
+
+    const response: PartyDetailsResponse = {
+        id: party.id,
+        name: party.name,
+        logo_url: party.logo_url,
+        policy: party.policy,
+        created_at: party.created_at || new Date(),
+        candidates: (party as any).Candidate.map((c: any) => ({
+            id: c.id,
+            title: c.title,
+            first_name: c.first_name,
+            last_name: c.last_name,
+            number: c.number,
+            image_url: c.image_url,
+            province: c.Constituency.province,
+            district_number: c.Constituency.district_number,
+        })),
+    };
+
     return {
         success: true,
-        data: parties,
+        data: response,
     };
 };
 

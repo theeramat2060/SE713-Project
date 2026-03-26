@@ -1,16 +1,16 @@
 import prisma from '../config/prisma';
 
 export const findPartyById = async (id: number) => {
-   return  await prisma.party.findUnique({
-       select:{
-            id: true,
-            name: true,
-            logo_url: true,
-            policy: true,
-            created_at: true,
-       },
-       where: { id }
-    });
+  return await prisma.party.findUnique({
+    where: { id },
+    include: {
+      Candidate: {
+        include: {
+          Constituency: true
+        }
+      }
+    }
+  });
 };
 
 export const findAllParties = async () => {

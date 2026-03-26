@@ -291,3 +291,21 @@ export class AddCandidateService {
         }
     }
 }
+
+export class GetElectionStatsService {
+    static async getStats(): Promise<{ success: boolean; data?: any; error?: string }> {
+        try {
+            const stats = await EC.getElectionStats();
+            return {
+                success: true,
+                data: stats,
+            };
+        } catch (error) {
+            console.error('Error fetching election stats:', error);
+            return {
+                success: false,
+                error: 'Failed to fetch election stats',
+            };
+        }
+    }
+}

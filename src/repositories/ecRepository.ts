@@ -121,23 +121,21 @@ export const updateConstituencyWinner = async (constituencyId: number, winnerCan
 
 
 
-// Get basic info of all parties (id, name, logo_url) with pagination
+// Get basic info of all parties (id, name, logo_url, policy, candidate count) with pagination
 export const getAllPartiesBasic = async (page: number = 1, pageSize: number = 10): Promise<any[]> => {
     console.log(`Fetching parties - Page: ${page}, Size: ${pageSize}`);
     const offset = (page - 1) * pageSize;
-    // const result = await prisma.$queryRaw<any[]>`
-    //     SELECT id, name, logo_url
-    //     FROM "Party"
-    //     ORDER BY name ASC
-    //     LIMIT ${pageSize} OFFSET ${offset}
-    // `;
-    // console.log('Fetched parties:', result);
-    // return result ?? [];
     const result = await prisma.party.findMany({
         select: {
             id: true,
             name: true,
             logo_url: true,
+            policy: true,
+            _count: {
+                select: {
+                    Candidate: true,
+                },
+            },
         },
         orderBy: {
             name: 'asc',
@@ -145,26 +143,45 @@ export const getAllPartiesBasic = async (page: number = 1, pageSize: number = 10
         skip: offset,
         take: pageSize,
     });
-    console.log('Fetched parties:', result);
-    return result ?? [];
+    
+    return result.map(p => ({
+        id: p.id,
+        name: p.name,
+        logo_url: p.logo_url,
+        policy: p.policy,
+        candidates_count: p._count.Candidate,
+    }));
 };
 
 // Get total count of parties
 export const getPartiesCount = async (): Promise<number> => {
-    // const result = await prisma.$queryRaw<{count: bigint}[]>`
-    //     SELECT COUNT(*) as count
-    //     FROM "Party"
-    // `;
-    // return result ? Number(result[0].count) : 0;
     const count = await prisma.party.count();
     return count;
 };  
 
+export const getElectionStats = async () => {
+    const totalRegistered = await prisma.user.count();
+    
+    // Total users who have a record in Vote table
+    const totalVoted = await prisma.vote.count();
+    const userNoVoteResult = await prisma.$queryRaw<{count: bigint}[]>`
+        SELECT COUNT(*) as count FROM "Vote" WHERE candidate_id IS NULL
+    `;
+    const userNoVote = Number(userNoVoteResult[0]?.count || 0);
+    
+    const turnoutPercentage = totalRegistered > 0 
+        ? parseFloat(((totalVoted / totalRegistered) * 100).toFixed(2))
+        : 0;
+
+    return {
+        totalRegistered,
+        totalVoted,
+        userNoVote,
+        turnoutPercentage
+    };
+};
+
 export const deleteParty = async (id: number): Promise<void> => {
-    // await prisma.$queryRaw`
-    //     DELETE FROM "Party"
-    //     WHERE id = ${id}
-    // `;
     await prisma.party.delete({
         where: { id }
     });
