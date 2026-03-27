@@ -178,7 +178,7 @@ class ECStaffService {
       const ecStaff = await ecStaffRepository.findAll();
       return {
         success: true,
-        data: ecStaff.map(e => ({
+        data: ecStaff.map((e: any) => ({
           id: e.id,
           national_id: e.national_id,
           title: e.title,
@@ -204,7 +204,7 @@ class ECStaffService {
       const ecStaff = await ecStaffRepository.findByAdmin(admin_id);
       return {
         success: true,
-        data: ecStaff.map(e => ({
+        data: ecStaff.map((e: any) => ({
           id: e.id,
           national_id: e.national_id,
           title: e.title,
@@ -229,7 +229,7 @@ class ECStaffService {
       const ecStaff = await ecStaffRepository.findByConstituency(constituency_id);
       return {
         success: true,
-        data: ecStaff.map(e => ({
+        data: ecStaff.map((e: any) => ({
           id: e.id,
           national_id: e.national_id,
           title: e.title,
