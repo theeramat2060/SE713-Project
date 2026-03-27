@@ -1,14 +1,19 @@
 {
+  "build": "prisma generate && tsc",
+  "dev": "nodemon",
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*.ts"]
+ // File Layout
+ "rootDir": "./src",
+ "outDir": "./dist",
+ "module": "CommonJS",
+ "moduleResolution": "node",
+ "target": "ES2023",
+ "strict": true,
+ "esModuleInterop": true,
+ "ignoreDeprecations": "5.0"
+},
+"include": ["src/**/*"],
+"exclude": ["node_modules", "dist"]
+
 }
 
