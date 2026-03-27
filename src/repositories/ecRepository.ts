@@ -208,6 +208,8 @@ export const getCandidatesByPartyId = async (partyId: number): Promise<any[]> =>
             last_name: true,
             number: true,
             image_url: true,
+            party_id: true,
+            constituency_id: true,
             Constituency: {
                 select: {
                     province: true,
@@ -229,6 +231,8 @@ export const getCandidatesByPartyId = async (partyId: number): Promise<any[]> =>
         last_name: candidate.last_name,
         number: candidate.number,
         image_url: candidate.image_url,
+        party_id: candidate.party_id,
+        constituency_id: candidate.constituency_id,
         province: candidate.Constituency.province,
         district_number: candidate.Constituency.district_number,
     })) as unknown as any[];
@@ -251,20 +255,28 @@ await prisma.$queryRaw`
     `;
 };
 
-export const getAllCandidates = async (page: number = 1, pageSize: number = 10): Promise<any[]> => {
+export const getAllCandidates = async (page: number = 1, pageSize: number = 10, search?: string, partyId?: number, constituencyId?: number): Promise<any[]> => {
     const offset = (page - 1) * pageSize;
-    // const result = await prisma.$queryRaw<any[]>`
-    //     SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url,
-    //         p.name as party_name, p.logo_url as party_logo_url,
-    //         con.province, con.district_number
-    //     FROM "Candidate" c
-    //     JOIN "Party" p ON c.party_id = p.id
-    //     JOIN "Constituency" con ON c.constituency_id = con.id
-    //     ORDER BY con.province ASC, con.district_number ASC, c.number ASC
-    //     LIMIT ${pageSize} OFFSET ${offset}
-    // `;
-    // return result ?? [];
+    
+    const where: any = {};
+    if (search) {
+        where.OR = [
+            { first_name: { contains: search, mode: 'insensitive' } },
+            { last_name: { contains: search, mode: 'insensitive' } },
+            { Party: { name: { contains: search, mode: 'insensitive' } } }
+        ];
+    }
+    
+    if (partyId) {
+        where.party_id = partyId;
+    }
+    
+    if (constituencyId) {
+        where.constituency_id = constituencyId;
+    }
+
     const result = await prisma.candidate.findMany({
+        where,
         select: {
             id: true,
             title: true,
@@ -272,6 +284,8 @@ export const getAllCandidates = async (page: number = 1, pageSize: number = 10):
             last_name: true,
             number: true,
             image_url: true,
+            party_id: true,
+            constituency_id: true,
             Party: {
                 select: {
                     name: true,
@@ -300,20 +314,34 @@ export const getAllCandidates = async (page: number = 1, pageSize: number = 10):
         last_name: candidate.last_name,
         number: candidate.number,
         image_url: candidate.image_url,
+        party_id: candidate.party_id,
         party_name: candidate.Party.name,
         party_logo_url: candidate.Party.logo_url,
+        constituency_id: candidate.constituency_id,
         province: candidate.Constituency.province,
         district_number: candidate.Constituency.district_number,
     })) as unknown as any[];
 };
 
-export const getCandidatesCount = async (): Promise<number> => {
-    // const result = await prisma.$queryRaw<{count: bigint}[]>`
-    //     SELECT COUNT(*) as count
-    //     FROM "Candidate"
-    // `;
-    // return result ? Number(result[0].count) : 0;
-    const count = await prisma.candidate.count();
+export const getCandidatesCount = async (search?: string, partyId?: number, constituencyId?: number): Promise<number> => {
+    const where: any = {};
+    if (search) {
+        where.OR = [
+            { first_name: { contains: search, mode: 'insensitive' } },
+            { last_name: { contains: search, mode: 'insensitive' } },
+            { Party: { name: { contains: search, mode: 'insensitive' } } }
+        ];
+    }
+    
+    if (partyId) {
+        where.party_id = partyId;
+    }
+    
+    if (constituencyId) {
+        where.constituency_id = constituencyId;
+    }
+    
+    const count = await prisma.candidate.count({ where });
     return count;
 };
 
@@ -377,20 +405,9 @@ export const getCandidateForEdit = async (name: string): Promise<any[]> => {
 };
 
 
-export const updateCandidate = async (id: number,updatedData: any): Promise<void> => {
+export const updateCandidate = async (id: number,updatedData: any): Promise<any> => {
     const { title, first_name, last_name, number, image_url, party_id, constituency_id } = updatedData;
-    // await prisma.$queryRaw`
-    //     UPDATE "Candidate"
-    //     SET title = ${title},
-    //         first_name = ${first_name},
-    //         last_name = ${last_name},
-    //         number = ${number},
-    //         image_url = ${image_url},
-    //         party_id = ${party_id},
-    //         constituency_id = ${constituency_id}
-    //     WHERE id = ${id}
-    // `;
-    await prisma.candidate.update({
+    return await prisma.candidate.update({
         where: { id },
         data: {
             title,

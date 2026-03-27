@@ -96,10 +96,10 @@ router.post('/register', validateUserRegistration, async (req: Request, res: Res
         token: result.data!.token,
         user: result.data!.user ? {
             id: result.data!.user!.id,
-            nationalId: result.data!.user!.nationalId,
+            nationalId: (result.data!.user! as any).nationalId,
             title: result.data!.user!.title,
-            firstName: result.data!.user!.firstName,
-            lastName: result.data!.user!.lastName,
+            firstName: (result.data!.user! as any).firstName,
+            lastName: (result.data!.user! as any).lastName,
             role: result.data!.user!.role,
         } : undefined,
     } as AuthApiResponse);
@@ -124,10 +124,10 @@ router.post('/login', validateUserLogin, async (req: Request, res: Response) => 
         token: result.data!.token,
         user: result.data!.user ? {
             id: result.data!.user!.id,
-            nationalId: result.data!.user!.nationalId,
+            nationalId: (result.data!.user! as any).nationalId,
             title: result.data!.user!.title,
-            firstName: result.data!.user!.firstName,
-            lastName: result.data!.user!.lastName,
+            firstName: (result.data!.user! as any).firstName,
+            lastName: (result.data!.user! as any).lastName,
             role: result.data!.user!.role,
         } : undefined,
     } as AuthApiResponse);
@@ -191,10 +191,10 @@ router.post('/admin/login', validateAdminLogin, async (req: Request, res: Respon
             token: result.data!.token,
             user: {
                 id: result.data!.ecStaff!.id,
-                nationalId: result.data!.ecStaff!.national_id,
+                nationalId: (result.data!.ecStaff as any).national_id || (result.data!.ecStaff as any).nationalId,
                 title: result.data!.ecStaff!.title,
-                firstName: result.data!.ecStaff!.first_name,
-                lastName: result.data!.ecStaff!.last_name,
+                firstName: (result.data!.ecStaff as any).first_name || (result.data!.ecStaff as any).firstName,
+                lastName: (result.data!.ecStaff as any).last_name || (result.data!.ecStaff as any).lastName,
                 role: 'EC',
                 email: result.data!.ecStaff!.email,
             },

@@ -1,6 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { VoteService } from '../services/voteService';
 
+interface AppError extends Error {
+    message: string;
+}
+
 const router = Router();
 const voteService = new VoteService();
 
@@ -31,10 +35,11 @@ router.post('/vote', async (req: Request, res: Response) => {
       message: 'Vote recorded successfully',
       data: result.data,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const appError = error as AppError;
     res.status(500).json({
       success: false,
-      error: error.message || 'Internal server error',
+      error: appError.message || 'Internal server error',
     });
   }
 });
@@ -66,10 +71,11 @@ router.get('/candidates/:userId', async (req: Request, res: Response) => {
       success: true,
       data: result.data,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const appError = error as AppError;
     res.status(500).json({
       success: false,
-      error: error.message || 'Internal server error',
+      error: appError.message || 'Internal server error',
     });
   }
 });

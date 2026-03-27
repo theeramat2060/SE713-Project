@@ -1,5 +1,6 @@
 import * as constituencyRepository from '../repositories/constituencyRepository';
 import * as partyRepository from '../repositories/partyRepository';
+import * as candidateRepository from '../repositories/candidateRepository';
 import {
     ConstituencyResponse,
     ConstituencyResultsResponse,
@@ -13,6 +14,26 @@ import {findAllParties, findPartyById} from "../repositories/partyRepository";
 
 const logPublicEvent = (event: string, data: Record<string, any>) => {
     console.log(`[PUBLIC] ${event}:`, {timestamp: new Date().toISOString(), ...data});
+};
+
+export const getCandidateById = async (id: number): Promise<ServiceResult<any>> => {
+    logPublicEvent('GET_CANDIDATE_BY_ID', { id });
+    const candidate = await candidateRepository.getCandidateById(id);
+    
+    if (!candidate) {
+        return {
+            success: false,
+            error: {
+                message: 'Candidate not found',
+                code: 404,
+            },
+        };
+    }
+
+    return {
+        success: true,
+        data: candidate,
+    };
 };
 
 export const getAllConstituencies = async () => {

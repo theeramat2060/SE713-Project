@@ -9,7 +9,10 @@ import {
     RegisterAdminRequest,
     LoginAdminRequest,
     AuthTokenResponse,
-    ServiceResult
+    ServiceResult,
+    UserAuthResponse,
+    AdminAuthResponse,
+    ECStaffAuthResponse,
 } from '../dto/authDTO';
 
 const SALT_ROUNDS = 10;
@@ -52,21 +55,22 @@ export const registerUser = async (data: RegisterUserRequest): Promise<ServiceRe
 
     logAuthEvent('USER_REGISTERED', {userId: user.id, role: 'VOTER'});
 
+    const userResponse: UserAuthResponse = {
+        id: user.id,
+        nationalId: user.national_id,
+        title: user.title,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        address: user.address,
+        constituencyId: user.constituency_id,
+        role: 'VOTER',
+    };
+
     return {
         success: true,
-        // @ts-ignore
         data: {
             token,
-            user: {
-                id: user.id,
-                nationalId: user.national_id,
-                title: user.title,
-                firstName: user.first_name,
-                lastName: user.last_name,
-                address: user.address,
-                constituencyId: user.constituency_id,
-                role: 'VOTER',
-            },
+            user: userResponse,
         },
     };
 };
@@ -100,26 +104,28 @@ export const loginUser = async (data: LoginUserRequest): Promise<ServiceResult<A
 
     const token = generateToken({
         userId: user.id,
-        role: user.role,
+        role: 'VOTER',
         constituencyId: user.constituency_id,
     });
 
     logAuthEvent('USER_LOGIN', {userId: user.id, role: 'VOTER'});
+
+    const userResponse: UserAuthResponse = {
+        id: user.id,
+        nationalId: user.national_id,
+        title: user.title,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        address: user.address,
+        constituencyId: user.constituency_id,
+        role: 'VOTER',
+    };
+
     return {
         success: true,
-        // @ts-ignore
         data: {
             token,
-            user: {
-                id: user.id,
-                nationalId: user.national_id,
-                title: user.title,
-                firstName: user.first_name,
-                lastName: user.last_name,
-                address: user.address,
-                constituencyId: user.constituency_id,
-                role: 'VOTER',
-            },
+            user: userResponse,
         },
     };
 };
@@ -179,9 +185,13 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
         });
 
         logAuthEvent('ADMIN_LOGIN', {adminId: admin.id});
+        const adminResponse: AdminAuthResponse = {
+            id: admin.id,
+            username: admin.username,
+        };
         return {
             success: true,
-            data: {token, admin},
+            data: {token, admin: adminResponse},
         };
     }
 
@@ -232,10 +242,20 @@ export const loginAdmin = async (data: LoginAdminRequest): Promise<ServiceResult
     });
 
     logAuthEvent('EC_LOGIN', {ecStaffId: ecStaff.id, role: 'EC'});
+    const ecStaffResponse: ECStaffAuthResponse = {
+        id: ecStaff.id,
+        nationalId: ecStaff.national_id,
+        title: ecStaff.title,
+        firstName: ecStaff.first_name,
+        lastName: ecStaff.last_name,
+        email: ecStaff.email || undefined,
+        status: ecStaff.status,
+        constituencyId: ecStaff.constituency_id,
+        role: 'EC',
+    };
     return {
         success: true,
-        // @ts-ignore
-        data: {token, ecStaff},
+        data: {token, ecStaff: ecStaffResponse},
     };
 };
 

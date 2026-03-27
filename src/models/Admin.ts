@@ -8,20 +8,28 @@
  * - password: Hashed password
  * - created_at: When the admin account was created
  */
+
+export interface AdminData {
+    id: number;
+    username: string;
+    password: string;
+    created_at?: Date | null;
+    role?: string;
+}
+
 export class Admin {
     id: number;
     username: string;
     password: string;
     created_at: Date;
     role: string;
-    
 
-    constructor(data: Admin) {
+    constructor(data: AdminData) {
         this.id = data.id;
         this.username = data.username;
         this.password = data.password;
-        this.created_at = data.created_at;
-        this.role = data.role;
+        this.created_at = data.created_at || new Date();
+        this.role = data.role || 'ADMIN';
     }
 
     /**

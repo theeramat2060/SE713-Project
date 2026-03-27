@@ -83,6 +83,7 @@ export class DeclareResultsService {
                 number: winner.number,
                 party_name: winner.party_name,
                 party_logo_url: winner.party_logo_url,
+                image_url: winner.image_url,
                 vote_count: winner.vote_count,
             }
         });
@@ -176,15 +177,15 @@ export class CreatePartyService {
 }   
 
 export class GetAllCandidatesService {
-    static async getAllCandidates(page: number = 1, pageSize: number = 10): Promise<{ success: boolean; data?: any[]; pagination?: { page: number; pageSize: number; total: number; totalPages: number }; error?: string }> {
+    static async getAllCandidates(page: number = 1, pageSize: number = 10, search?: string, partyId?: number, constituencyId?: number): Promise<{ success: boolean; data?: any[]; pagination?: { page: number; pageSize: number; total: number; totalPages: number }; error?: string }> {
         try {
             // Validate pagination parameters
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
             if (pageSize > 100) pageSize = 100; // Max 100 per page
 
-            const candidates = await EC.getAllCandidates(page, pageSize);
-            const total = await EC.getCandidatesCount();
+            const candidates = await EC.getAllCandidates(page, pageSize, search, partyId, constituencyId);
+            const total = await EC.getCandidatesCount(search, partyId, constituencyId);
             const totalPages = Math.ceil(total / pageSize);
 
             return {

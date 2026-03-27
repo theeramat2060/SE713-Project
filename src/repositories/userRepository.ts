@@ -23,7 +23,6 @@ export const createUser = async (
         },
     });
 
-        // @ts-ignore
     return new User(userData);
 };
 
@@ -34,7 +33,6 @@ export const findUserByNationalId = async (nationalId: string): Promise<User | n
 
     if (!user) return null;
 
-    // @ts-ignore
     return new User(user);
 };
 
@@ -45,7 +43,6 @@ export const getUserById = async (id: string): Promise<User | null> => {
 
     if (!user) return null;
 
-    // @ts-ignore
     return new User(user);
 };
 

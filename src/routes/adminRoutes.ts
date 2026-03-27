@@ -2,6 +2,16 @@ import express, { Request, Response } from 'express';
 import * as adminService from '../services/adminService';
 import * as admin from '../dto/adminDTO';
 import ecStaffService from '../services/ecStaffService';
+import { getErrorMessage } from '../utils/errorHandler';
+
+interface ServiceResult<T> {
+    success: boolean;
+    error?: {
+        code: number;
+        message: string;
+    };
+    data?: T;
+}
 
 const router = express.Router();
 
@@ -40,10 +50,10 @@ router.post('/ec-staff', async (req: Request, res: Response) => {
             message: 'EC Staff created successfully',
             data: result.data,
         });
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to create EC Staff',
+            error: getErrorMessage(error),
         });
     }
 });
@@ -53,7 +63,7 @@ router.get('/ec-staff', async (req: Request, res: Response) => {
     try {
         const { constituency_id, admin_id } = req.query;
 
-        let result: any;
+        let result: ServiceResult<any>;
 
         if (constituency_id) {
             result = await ecStaffService.getECStaffByConstituency(Number(constituency_id));
@@ -75,10 +85,10 @@ router.get('/ec-staff', async (req: Request, res: Response) => {
             data: result.data,
             count: result.data?.length || 0,
         });
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to fetch EC Staff',
+            error: getErrorMessage(error),
         });
     }
 });
@@ -86,7 +96,7 @@ router.get('/ec-staff', async (req: Request, res: Response) => {
 // Get single EC Staff - Admin only
 router.get('/ec-staff/:id', async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
 
         const result = await ecStaffService.getECStaffById(id);
 
@@ -101,10 +111,10 @@ router.get('/ec-staff/:id', async (req: Request, res: Response) => {
             success: true,
             data: result.data,
         });
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to fetch EC Staff',
+            error: getErrorMessage(error),
         });
     }
 });
@@ -112,7 +122,7 @@ router.get('/ec-staff/:id', async (req: Request, res: Response) => {
 // Update EC Staff - Admin only
 router.post('/ec-staff/:id', async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const { admin_id, ec_status, ...updateData } = req.body;
 
         if (!admin_id) {
@@ -148,10 +158,10 @@ router.post('/ec-staff/:id', async (req: Request, res: Response) => {
             message: 'EC Staff updated successfully',
             data: result.data,
         });
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to update EC Staff',
+            error: getErrorMessage(error),
         });
     }
 });
@@ -159,7 +169,7 @@ router.post('/ec-staff/:id', async (req: Request, res: Response) => {
 // Delete EC Staff - Admin only
 router.delete('/ec-staff/:id', async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const { admin_id } = req.body;
 
         if (!admin_id) {
@@ -182,10 +192,10 @@ router.delete('/ec-staff/:id', async (req: Request, res: Response) => {
             success: true,
             message: 'EC Staff deleted successfully',
         });
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to delete EC Staff',
+            error: getErrorMessage(error),
         });
     }
 });

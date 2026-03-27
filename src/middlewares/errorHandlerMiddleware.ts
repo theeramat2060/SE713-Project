@@ -1,6 +1,13 @@
 import type {Request, Response, NextFunction} from 'express';
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+interface AppError extends Error {
+    code?: string;
+    detail?: string;
+    statusCode?: number;
+    details?: string;
+}
+
+export const errorHandler = (err: AppError, req: Request, res: Response, next: NextFunction) => {
     if (err.code) {
         if (err.code === '23505') {
             return res.status(400).json({

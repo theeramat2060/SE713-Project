@@ -32,6 +32,8 @@ export interface UserAuthResponse {
     title: string;
     firstName: string;
     lastName: string;
+    address?: string;
+    constituencyId?: number;
     role: string;
 }
 
@@ -47,6 +49,8 @@ export interface ECStaffAuthResponse {
     firstName: string;
     lastName: string;
     email?: string;
+    status?: string;
+    constituencyId?: number;
     role: 'EC';
 }
 

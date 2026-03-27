@@ -2,8 +2,16 @@ import type {Request, Response} from 'express';
 import { User, Admin } from '../models';
 import * as tokenService from '../services/tokenService';
 
-type AuthHandler = (req: Request, res: Response, user: User) => Promise<void>;
-type AdminHandler = (req: Request, res: Response, admin: Admin) => Promise<void>;
+interface TokenPayload {
+    userId?: string;
+    adminId?: number;
+    ecStaffId?: string;
+    role: string;
+    constituencyId?: number;
+}
+
+type AuthHandler = (req: Request, res: Response, user: TokenPayload) => Promise<void>;
+type AdminHandler = (req: Request, res: Response, admin: TokenPayload) => Promise<void>;
 
 
 export const withAuth = (handler: AuthHandler) => {
@@ -18,7 +26,7 @@ export const withAuth = (handler: AuthHandler) => {
             });
         }
         
-        await handler(req, res, result.data as User);
+        await handler(req, res, result.data);
     };
 };
 
@@ -44,7 +52,7 @@ export const withUserRole = (...roles: string[]) => {
                 });
             }
             
-            await handler(req, res, authResult.data as User);
+            await handler(req, res, authResult.data);
         };
     };
 };
@@ -69,8 +77,7 @@ export const withAdmin = (handler: AdminHandler) => {
             });
         }
         
-        const admin = result.data as any as Admin;
-        await handler(req, res, admin);
+        await handler(req, res, result.data);
     };
 };
 

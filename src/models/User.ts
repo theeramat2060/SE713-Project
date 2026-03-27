@@ -17,6 +17,18 @@ import {DefaultArgs, GetResult, PrismaClientOptions } from "@prisma/client/runti
  * - constituency_id: Which constituency user belongs to
  * - created_at: When account was created
  */
+export interface UserData {
+    id: string;
+    national_id: string;
+    password: string;
+    title: string;
+    first_name: string;
+    last_name: string;
+    address: string;
+    constituency_id: number;
+    created_at?: Date | null;
+}
+
 export class User {
     id: string;
     national_id: string;
@@ -28,7 +40,7 @@ export class User {
     constituency_id: number;
     created_at: Date;
 
-    constructor(data: User) {
+    constructor(data: UserData) {
         this.id = data.id;
         this.national_id = data.national_id;
         this.password = data.password;
@@ -37,7 +49,7 @@ export class User {
         this.last_name = data.last_name;
         this.address = data.address;
         this.constituency_id = data.constituency_id;
-        this.created_at = data.created_at;
+        this.created_at = data.created_at || new Date();
     }
 
     /**

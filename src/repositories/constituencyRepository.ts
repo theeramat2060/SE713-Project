@@ -27,5 +27,5 @@ export const getClosedConstituencies = async (): Promise<any[]> => {
         WHERE con.is_closed = true
         GROUP BY con.id, con.province, con.district_number, con.is_closed, con.created_at
     `;
-    return result;
+    return result as any[];
 };

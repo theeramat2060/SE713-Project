@@ -1,14 +1,14 @@
-import e, { Router,Request,Response } from "express";
+import e, { Router, Request, Response } from "express";
 import * as ecService from '../services/ecService';
 import * as publicService from '../services/publicService';
 import * as ecRepo from '../dto/ecDTO';
 import { verifyAuthToken } from '../services/tokenService';
 import * as EC from '../repositories/ecRepository';
+import { getErrorMessage } from '../utils/errorHandler';
 
 import { upload } from '../middlewares/uploadMiddleware';
 import { uploadFile } from '../services/UploadFileService';
 
-// **Note:** `uploadMiddleware` and `uploadToSupabase()` utility already exist in `/src/middlewares/uploadMiddleware.ts` and `/src/utils/uploadUtils.ts`
 
 const router = Router();
 
@@ -30,24 +30,24 @@ const resolveUploadFolder = (typeValue: unknown, fallback: 'candidates' | 'parti
 };
 
 const uploadImageIfProvided = async (
-    req: any,
+    req: Request,
     fallbackFolder: 'candidates' | 'parties' = 'candidates'
 ): Promise<string | undefined> => {
-    const file = req.file;
+    const file = (req as any).file;
     if (!file) {
         return undefined;
     }
 
     const bucket = 'election-bucket';
-    const filePath = resolveUploadFolder(req.body?.type, fallbackFolder);
+    const filePath = resolveUploadFolder((req as any).body?.type, fallbackFolder);
     console.log('Starting upload to S3 with bucket:', bucket, 'and filePath:', filePath);
     const fileKey = await uploadFile(bucket, filePath, file);
     return fileKey;
 };
 
-router.post('/upload', upload.single('file'), async (req: any, res: any) => {
+router.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
     try {
-        const file = req.file;
+        const file = (req as any).file;
         if (!file) {
             console.warn('⚠️  No file in request');
             return res.status(400).json({
@@ -56,7 +56,7 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
             });
         }
         const bucket = 'election-bucket';
-        const filePath = resolveUploadFolder(req.body?.type, 'candidates');
+        const filePath = resolveUploadFolder((req as any).body?.type, 'candidates');
         console.log('Received file:', {
             originalname: file.originalname,
             mimetype: file.mimetype,
@@ -66,10 +66,10 @@ router.post('/upload', upload.single('file'), async (req: any, res: any) => {
         console.log('Starting upload to S3 with bucket:', bucket, 'and filePath:', filePath);
         const fileKey = await uploadFile(bucket, filePath, file);
         res.status(200).send(fileKey);
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Error uploading file.'
+            error: getErrorMessage(error)
         });
     }
 });
@@ -161,10 +161,10 @@ router.post('/declare-results', async (req: Request, res: Response) => {
                 error: 'Failed to declare results',
             });
         }
-    } catch (error: any) {
+    } catch (error) {
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to declare results',
+            error: getErrorMessage(error),
         });
     }
 });
@@ -202,24 +202,28 @@ router.get('/election-stats', async (req: Request, res: Response) => {
 
 // POST /api/ec/update-voting - Update voting status
 router.post('/update-voting',  async (req: Request, res: Response) => {
-    const data: ecRepo.CloseVotingRequest = req.body; //expecting isClosed boolean
+    const data = req.body; // expecting { action: 'close' | 'open', closedBy?, closedAt? } OR { isClosed: boolean }
     console.log('Received update voting request:', data);
-    const result = await ecService.CloseVotingService.closeVoting(data.isClosed);
-        if (result.success&&data.isClosed) {
-            return res.status(200).json({
+    
+    // Support both new format (action) and old format (isClosed)
+    const isClosed = data.action === 'close' ? true : (data.action === 'open' ? false : data.isClosed);
+    
+    const result = await ecService.CloseVotingService.closeVoting(isClosed);
+    if (result.success && isClosed) {
+        return res.status(200).json({
             success: true,
             message: 'Voting closed successfully',
         });
-    }else if(result.success&&!data.isClosed){
-            return res.status(200).json({
+    } else if (result.success && !isClosed) {
+        return res.status(200).json({
             success: true,
             message: 'Voting opened successfully',
         });
     }   
     res.status(500).json({
-                success: false,
-                error: 'Failed to close voting',
-            }); 
+        success: false,
+        error: 'Failed to update voting status',
+    }); 
 });
 
 //pagination 10 parties per page 
@@ -241,7 +245,7 @@ router.get('/get-all-party', async (req: Request, res: Response) => {
     });
 });
 
-router.post('/create-party', upload.single('file'), async (req: any, res: Response) => {
+router.post('/create-party', upload.single('logo'), async (req: any, res: Response) => {
 const uploadedLogoKey = await uploadImageIfProvided(req, 'parties');
 const data : ecRepo.CreatePartyRequest = {
     ...req.body,
@@ -269,7 +273,7 @@ const result = await ecService.CreatePartyService.createParty(data.name, data.lo
 });
 
 router.delete('/delete-party/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id) || req.body.id;
+    const id = parseInt(req.params.id as string) || req.body.id;
     if (!id) {
         return res.status(400).json({
             success: false,
@@ -291,11 +295,15 @@ router.delete('/delete-party/:id', async (req: Request, res: Response) => {
 });
 
 
-//pagination 10 candidates per page     
-router.get('/get-all-candidates', async (req: Request, res: Response) => { 
+//pagination 10 candidates per page
+router.get('/get-all-candidates', async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 10;
-    const result = await ecService.GetAllCandidatesService.getAllCandidates(page, pageSize);
+    const search = req.query.search as string | undefined;
+    const partyId = req.query.partyId ? parseInt(req.query.partyId as string) : undefined;
+    const constituencyId = req.query.constituencyId ? parseInt(req.query.constituencyId as string) : undefined;
+    
+    const result = await ecService.GetAllCandidatesService.getAllCandidates(page, pageSize, search, partyId, constituencyId);
     res.status(200).json({
         success: true,
         message: 'Candidates retrieved successfully',
@@ -303,7 +311,6 @@ router.get('/get-all-candidates', async (req: Request, res: Response) => {
         pagination: result.pagination,
     });
 });
-
 //Totest
 router.delete('/delete-candidate/:id', async (req: Request, res: Response) => {
     const candidate : ecRepo.DeleteCandidateRequest = req.body;
@@ -335,6 +342,7 @@ router.post('/get-candidate', async (req: Request, res: Response) => {
 
 //Totest
 router.post('/update-candidate/:id', upload.single('file'), async (req: any, res: Response) => {
+console.log('📦 Candidate update request body:', JSON.stringify(req.body, null, 2));
 const candidateId = Number(req.params.id);
 if (!Number.isFinite(candidateId)) {
     return res.status(400).json({
@@ -345,14 +353,33 @@ if (!Number.isFinite(candidateId)) {
 
 const uploadedImageKey = await uploadImageIfProvided(req, 'candidates');
 const { title, first_name, last_name, number, image_url, party_id, constituency_id } = req.body;
+
+const parsedNumber = Number(number);
+const parsedPartyId = Number(party_id);
+const parsedConstituencyId = Number(constituency_id);
+
+if (isNaN(parsedPartyId) || parsedPartyId <= 0) {
+    return res.status(400).json({
+        success: false,
+        error: 'Invalid party_id provided',
+    });
+}
+
+if (isNaN(parsedConstituencyId) || parsedConstituencyId <= 0) {
+    return res.status(400).json({
+        success: false,
+        error: 'Invalid constituency_id provided',
+    });
+}
+
 const updateData = {
     title,
     first_name,
     last_name,
-    number: Number(number),
+    number: parsedNumber,
     image_url: uploadedImageKey ?? image_url,
-    party_id: Number(party_id),
-    constituency_id: Number(constituency_id)
+    party_id: parsedPartyId,
+    constituency_id: parsedConstituencyId
 };
 const result = await ecService.UpdateCandidateService.updateCandidate(candidateId, updateData);
     if (result.success) {

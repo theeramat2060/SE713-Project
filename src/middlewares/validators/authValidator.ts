@@ -10,11 +10,26 @@ interface ValidationResult {
     errors?: ValidationError[];
 }
 
+interface RegistrationData {
+    nationalId?: string;
+    password?: string;
+    title?: string;
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    constituencyId?: number;
+}
+
+interface AdminData {
+    username?: string;
+    password?: string;
+}
+
 const logValidationEvent = (event: string, data: Record<string, any>) => {
     console.log(`[VALIDATION] ${event}:`, {timestamp: new Date().toISOString(), ...data});
 };
 
-const validateUserRegistrationLogic = (data: any): ValidationResult => {
+const validateUserRegistrationLogic = (data: RegistrationData): ValidationResult => {
     const errors: ValidationError[] = [];
 
     if (!data.nationalId) {
@@ -60,7 +75,7 @@ const validateUserRegistrationLogic = (data: any): ValidationResult => {
     return {success: true};
 };
 
-const validateUserLoginLogic = (data: any): ValidationResult => {
+const validateUserLoginLogic = (data: RegistrationData): ValidationResult => {
     const errors: ValidationError[] = [];
 
     if (!data.nationalId) {
@@ -86,7 +101,7 @@ const validateUserLoginLogic = (data: any): ValidationResult => {
     return {success: true};
 };
 
-const validateAdminRegistrationLogic = (data: any): ValidationResult => {
+const validateAdminRegistrationLogic = (data: AdminData): ValidationResult => {
     const errors: ValidationError[] = [];
 
     if (!data.username) {
@@ -119,7 +134,7 @@ const validateAdminRegistrationLogic = (data: any): ValidationResult => {
     return {success: true};
 };
 
-const validateAdminLoginLogic = (data: any): ValidationResult => {
+const validateAdminLoginLogic = (data: AdminData): ValidationResult => {
     const errors: ValidationError[] = [];
 
     if (!data.username) {
@@ -144,7 +159,7 @@ const validateAdminLoginLogic = (data: any): ValidationResult => {
 };
 
 export const validateUserRegistration = (req: Request, res: Response, next: NextFunction) => {
-    const result = validateUserRegistrationLogic(req.body);
+    const result = validateUserRegistrationLogic(req.body as RegistrationData);
 
     if (!result.success) {
         return res.status(400).json({
@@ -158,7 +173,7 @@ export const validateUserRegistration = (req: Request, res: Response, next: Next
 };
 
 export const validateUserLogin = (req: Request, res: Response, next: NextFunction) => {
-    const result = validateUserLoginLogic(req.body);
+    const result = validateUserLoginLogic(req.body as RegistrationData);
 
     if (!result.success) {
         return res.status(400).json({
@@ -172,7 +187,7 @@ export const validateUserLogin = (req: Request, res: Response, next: NextFunctio
 };
 
 export const validateAdminRegistration = (req: Request, res: Response, next: NextFunction) => {
-    const result = validateAdminRegistrationLogic(req.body);
+    const result = validateAdminRegistrationLogic(req.body as AdminData);
 
     if (!result.success) {
         return res.status(400).json({
@@ -186,7 +201,7 @@ export const validateAdminRegistration = (req: Request, res: Response, next: Nex
 };
 
 export const validateAdminLogin = (req: Request, res: Response, next: NextFunction) => {
-    const result = validateAdminLoginLogic(req.body);
+    const result = validateAdminLoginLogic(req.body as AdminData);
 
     if (!result.success) {
         return res.status(400).json({
@@ -200,7 +215,7 @@ export const validateAdminLogin = (req: Request, res: Response, next: NextFuncti
 };
 
 export const validateECLogin = (req: Request, res: Response, next: NextFunction) => {
-    const result = validateAdminLoginLogic(req.body);
+    const result = validateAdminLoginLogic(req.body as AdminData);
 
     if (!result.success) {
         return res.status(400).json({
