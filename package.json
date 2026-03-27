@@ -11,8 +11,6 @@
     "dev": "nodemon --exec tsx src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "prebuild": "npm run build",
-    "prestart": "npm run build",
     "migrate": "psql -h localhost -U admin -d mydatabase -f migrations/001_init.sql",
     "seed": "prisma db seed",
     "seed:sql": "psql -h localhost -U admin -d mydatabase -f migrations/002_seed_test_data.sql",
