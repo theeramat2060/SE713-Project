@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Kick off project",
   "main": "dist/server.js",
-  "type": "module",
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
