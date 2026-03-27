@@ -1,6 +1,35 @@
 import prisma from "../config/prisma";
 import { ConstituencyModel } from "../models";
+import { supabase } from "../config/supabase";
+import { config } from "../config/env";
+import { getPresignedUrl } from "../services/UploadFileService";
 
+// Helper function to convert file key to full signed S3 URL
+export const getFullS3Url = async (fileKey: string | null): Promise<string | null> => {
+    if (!fileKey) {
+        console.log(' getFullS3Url called with null/empty key');
+        return null;
+    }
+    
+    // If it's already a full URL, return as is
+    if (fileKey.startsWith('http://') || fileKey.startsWith('https://')) {
+        console.log('Already full URL:', fileKey.substring(0, 50) + '...');
+        return fileKey;
+    }
+    
+    try {
+        console.log('🔄 Creating signed URL for:', fileKey);
+        
+        // Use AWS SDK to generate signed URL (works with Supabase S3-compatible storage)
+        const signedUrl = await getPresignedUrl('election-bucket', fileKey, 3600);
+        
+        console.log('Signed URL created successfully');
+        return signedUrl;
+    } catch (error) {
+        console.error(' Exception in getFullS3Url for:', fileKey, error);
+        return null;
+    }
+};
 
 // working on function to close voting for a constituency
 export const closeVotingForConstituency = async (constituencyId: number,isClosed: boolean): Promise<void> => {
@@ -15,6 +44,14 @@ export const closeVotingForConstituency = async (constituencyId: number,isClosed
     });
 };
 
+// Batch update all constituencies voting status - much faster than one-by-one
+export const updateAllConstituenciesVotingStatus = async (isClosed: boolean): Promise<{ count: number }> => {
+    const result = await prisma.constituency.updateMany({
+        data: { is_closed: isClosed }
+    });
+    console.log(`Batch update completed: ${result.count} constituencies updated`);
+    return result;
+};
 
 export const getOpenConstituencies = async (): Promise<ConstituencyModel[]> => {
     const result = await prisma.constituency.findMany({
@@ -144,13 +181,15 @@ export const getAllPartiesBasic = async (page: number = 1, pageSize: number = 10
         take: pageSize,
     });
     
-    return result.map(p => ({
+    const promises = result.map(async (p) => ({
         id: p.id,
         name: p.name,
-        logo_url: p.logo_url,
+        logo_url: await getFullS3Url(p.logo_url),
         policy: p.policy,
         candidates_count: p._count.Candidate,
     }));
+    
+    return Promise.all(promises);
 };
 
 // Get total count of parties
@@ -224,18 +263,20 @@ export const getCandidatesByPartyId = async (partyId: number): Promise<any[]> =>
             },
         },
     });
-    return result.map((candidate) => ({
+    const promises = result.map(async (candidate) => ({
         id: candidate.id,
         title: candidate.title,
         first_name: candidate.first_name,
         last_name: candidate.last_name,
         number: candidate.number,
-        image_url: candidate.image_url,
+        image_url: await getFullS3Url(candidate.image_url),
         party_id: candidate.party_id,
         constituency_id: candidate.constituency_id,
         province: candidate.Constituency.province,
         district_number: candidate.Constituency.district_number,
-    })) as unknown as any[];
+    }));
+    
+    return Promise.all(promises) as unknown as any[];
 };
 
 export const deleteCandidate = async (id: number): Promise<void> => {
@@ -253,6 +294,23 @@ await prisma.$queryRaw`
         INSERT INTO "Party" (name, logo_url, policy)
         VALUES (${name}, ${logo_url}, ${policy})
     `;
+};
+
+export const UpdateParty = async (id: number, name: string, logo_url: string, policy: string): Promise<void> => {
+    console.log('UpdateParty repository called:', { id, name, logo_url });
+    
+    await prisma.$queryRaw`
+        UPDATE "Party"
+        SET name = ${name}, logo_url = ${logo_url}, policy = ${policy}
+        WHERE id = ${id}
+    `;
+    
+    // Verify the update was successful
+    const updated = await prisma.party.findUnique({
+        where: { id },
+        select: { id: true, name: true, logo_url: true, policy: true }
+    });
+    
 };
 
 export const getAllCandidates = async (page: number = 1, pageSize: number = 10, search?: string, partyId?: number, constituencyId?: number): Promise<any[]> => {
@@ -307,20 +365,22 @@ export const getAllCandidates = async (page: number = 1, pageSize: number = 10, 
         skip: offset,
         take: pageSize,
     });
-    return result.map((candidate) => ({
+    const promises = result.map(async (candidate) => ({
         id: candidate.id,
         title: candidate.title,
         first_name: candidate.first_name,
         last_name: candidate.last_name,
         number: candidate.number,
-        image_url: candidate.image_url,
+        image_url: await getFullS3Url(candidate.image_url),
         party_id: candidate.party_id,
         party_name: candidate.Party.name,
-        party_logo_url: candidate.Party.logo_url,
+        party_logo_url: await getFullS3Url(candidate.Party.logo_url),
         constituency_id: candidate.constituency_id,
         province: candidate.Constituency.province,
         district_number: candidate.Constituency.district_number,
-    })) as unknown as any[];
+    }));
+    
+    return Promise.all(promises) as unknown as any[];
 };
 
 export const getCandidatesCount = async (search?: string, partyId?: number, constituencyId?: number): Promise<number> => {
@@ -388,20 +448,22 @@ export const getCandidateForEdit = async (name: string): Promise<any[]> => {
             },
         },
     });
-    return result.map((candidate) => ({
+    const promises = result.map(async (candidate) => ({
         id: candidate.id,
         title: candidate.title,
         first_name: candidate.first_name,
         last_name: candidate.last_name,
         number: candidate.number,
-        image_url: candidate.image_url,
+        image_url: await getFullS3Url(candidate.image_url),
         party_id: candidate.party_id,
         constituency_id: candidate.constituency_id,
         party_name: candidate.Party.name,
-        party_logo_url: candidate.Party.logo_url,
+        party_logo_url: await getFullS3Url(candidate.Party.logo_url),
         province: candidate.Constituency.province,
         district_number: candidate.Constituency.district_number,
-    })) as unknown as any[];
+    }));
+    
+    return Promise.all(promises) as unknown as any[];
 };
 
 
@@ -439,5 +501,67 @@ export const addCandidate = async (candidateData: any): Promise<void> => {
             constituency_id,
         },
     }); 
+};
+
+// Get ballot statistics by constituency for the ballot page
+export const getBallotStatisticsByConstituency = async () => {
+    const constituencies = await prisma.constituency.findMany({
+        select: {
+            id: true,
+            province: true,
+            district_number: true,
+            is_closed: true,
+        },
+        orderBy: [
+            { province: 'asc' },
+            { district_number: 'asc' }
+        ]
+    });
+
+    const stats = await Promise.all(
+        constituencies.map(async (c) => {
+            // Get total votes cast in this constituency (votes with candidate_id)
+            const votesWithCandidate = await prisma.vote.count({
+                where: {
+                    Candidate: {
+                        constituency_id: c.id
+                    }
+                }
+            });
+
+            // Get no-votes (votes with null candidate_id from this constituency's voters) using raw SQL
+            const noVotesResult = await prisma.$queryRaw<{count: bigint}[]>`
+                SELECT COUNT(*) as count FROM "Vote" v
+                WHERE v.candidate_id IS NULL
+                AND v.user_id IN (SELECT id FROM "User" WHERE constituency_id = ${c.id})
+            `;
+            const noVotes = Number(noVotesResult[0]?.count || 0);
+
+            // Get registered voters in this constituency
+            const registeredVoters = await prisma.user.count({
+                where: {
+                    constituency_id: c.id
+                }
+            });
+
+            const totalCast = votesWithCandidate + noVotes;
+            const turnout = registeredVoters > 0 ? (totalCast / registeredVoters) * 100 : 0;
+
+            return {
+                id: c.id,
+                name: `${c.province} เขต ${c.district_number}`,
+                province: c.province,
+                district_number: c.district_number,
+                is_closed: c.is_closed,
+                progress: Math.round(turnout),
+                status: c.is_closed ? 'Complete' : (totalCast > 0 ? 'Reporting' : 'Pending'),
+                ballotsTotal: registeredVoters,
+                ballotsCast: totalCast,
+                lastUpdated: new Date().toLocaleString('th-TH')
+            };
+        })
+    );
+
+    return stats;
 };
 

@@ -479,9 +479,9 @@ export type CandidateOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CandidateScalarRelationFilter = {
-  is?: Prisma.CandidateWhereInput
-  isNot?: Prisma.CandidateWhereInput
+export type CandidateNullableScalarRelationFilter = {
+  is?: Prisma.CandidateWhereInput | null
+  isNot?: Prisma.CandidateWhereInput | null
 }
 
 export type CandidateCreateNestedManyWithoutConstituencyInput = {
@@ -574,10 +574,12 @@ export type CandidateCreateNestedOneWithoutVoteInput = {
   connect?: Prisma.CandidateWhereUniqueInput
 }
 
-export type CandidateUpdateOneRequiredWithoutVoteNestedInput = {
+export type CandidateUpdateOneWithoutVoteNestedInput = {
   create?: Prisma.XOR<Prisma.CandidateCreateWithoutVoteInput, Prisma.CandidateUncheckedCreateWithoutVoteInput>
   connectOrCreate?: Prisma.CandidateCreateOrConnectWithoutVoteInput
   upsert?: Prisma.CandidateUpsertWithoutVoteInput
+  disconnect?: Prisma.CandidateWhereInput | boolean
+  delete?: Prisma.CandidateWhereInput | boolean
   connect?: Prisma.CandidateWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CandidateUpdateToOneWithWhereWithoutVoteInput, Prisma.CandidateUpdateWithoutVoteInput>, Prisma.CandidateUncheckedUpdateWithoutVoteInput>
 }

@@ -1,4 +1,5 @@
 import prisma from '../config/prisma';
+import { getFullS3Url } from './ecRepository';
 
 export const getCandidateById = async (id: number) => {
     const result = await prisma.$queryRaw<any[]>`
@@ -15,9 +16,15 @@ export const getCandidateById = async (id: number) => {
     const candidate = result[0] ?? null;
     if (!candidate) return null;
     
+    // Convert image URLs to signed URLs
+    const signedImageUrl = await getFullS3Url(candidate.image_url);
+    const signedPartyLogoUrl = await getFullS3Url(candidate.party_logo_url);
+    
     // Structure the response to include constituency object
     return {
         ...candidate,
+        image_url: signedImageUrl || candidate.image_url || '',
+        party_logo_url: signedPartyLogoUrl || candidate.party_logo_url || '',
         constituency: {
             is_closed: candidate.is_closed,
             province: candidate.province,
@@ -39,13 +46,16 @@ export const getCandidatesByConstituencyId = async (constituencyId: number) => {
         ORDER BY c.number ASC
     `;
     
-    return result.map(candidate => ({
+    // Convert image URLs to signed URLs for all candidates
+    return Promise.all(result.map(async (candidate) => ({
         ...candidate,
+        image_url: (await getFullS3Url(candidate.image_url)) || candidate.image_url || '',
+        party_logo_url: (await getFullS3Url(candidate.party_logo_url)) || candidate.party_logo_url || '',
         constituency: {
             is_closed: candidate.is_closed,
             province: candidate.province,
             district_number: candidate.district_number,
         }
-    }));
+    })));
 };
 

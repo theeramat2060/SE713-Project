@@ -203,27 +203,42 @@ router.get('/election-stats', async (req: Request, res: Response) => {
 // POST /api/ec/update-voting - Update voting status
 router.post('/update-voting',  async (req: Request, res: Response) => {
     const data = req.body; // expecting { action: 'close' | 'open', closedBy?, closedAt? } OR { isClosed: boolean }
-    console.log('Received update voting request:', data);
+    console.log('📝 Received update voting request:', JSON.stringify(data));
     
-    // Support both new format (action) and old format (isClosed)
-    const isClosed = data.action === 'close' ? true : (data.action === 'open' ? false : data.isClosed);
-    
-    const result = await ecService.CloseVotingService.closeVoting(isClosed);
-    if (result.success && isClosed) {
-        return res.status(200).json({
-            success: true,
-            message: 'Voting closed successfully',
+    try {
+        // Support both new format (action) and old format (isClosed)
+        const isClosed = data.action === 'close' ? true : (data.action === 'open' ? false : data.isClosed);
+        
+        console.log(`🔄 Processing voting update: isClosed=${isClosed}`);
+        
+        const result = await ecService.CloseVotingService.closeVoting(isClosed);
+        
+        if (result.success && isClosed) {
+            console.log('✅ Voting closed successfully');
+            return res.status(200).json({
+                success: true,
+                message: 'Voting closed successfully',
+            });
+        } else if (result.success && !isClosed) {
+            console.log('✅ Voting opened successfully');
+            return res.status(200).json({
+                success: true,
+                message: 'Voting opened successfully',
+            });
+        }
+        
+        console.error('❌ Service returned unsuccessful result:', result);
+        res.status(500).json({
+            success: false,
+            error: result.error?.message || 'Failed to update voting status',
         });
-    } else if (result.success && !isClosed) {
-        return res.status(200).json({
-            success: true,
-            message: 'Voting opened successfully',
+    } catch (error) {
+        console.error('❌ Error in update-voting endpoint:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Internal server error',
         });
-    }   
-    res.status(500).json({
-        success: false,
-        error: 'Failed to update voting status',
-    }); 
+    }
 });
 
 //pagination 10 parties per page 
@@ -292,6 +307,56 @@ router.delete('/delete-party/:id', async (req: Request, res: Response) => {
             error: result.message || 'Failed to delete party',
         });
     }  
+});
+
+router.put('/update-party/:id', upload.single('logo'), async (req: any, res: Response) => {
+    const id = parseInt(req.params.id as string);
+    if (!id) {
+        return res.status(400).json({
+            success: false,
+            error: 'Party ID is required',
+        });
+    }
+
+    console.log('Update party request:', {
+        id,
+        body: req.body,
+        hasFile: !!req.file,
+        fileName: req.file?.originalname,
+    });
+
+    const uploadedLogoKey = await uploadImageIfProvided(req, 'parties');
+    const data: any = {
+        ...req.body,
+        logo_url: uploadedLogoKey ?? req.body.logo_url,
+    };
+
+    console.log('Update party data after processing:', {
+        name: data.name,
+        policy: data.policy,
+        logo_url: data.logo_url,
+        uploadedLogoKey,
+    });
+
+    if (!data.name || !data.logo_url || !data.policy) {
+        return res.status(400).json({
+            success: false,
+            error: 'Missing required fields: name, logo_url, policy',
+        });
+    }
+
+    const result = await ecService.UpdatePartyService.updateParty(id, data.name, data.logo_url, data.policy);
+    if (result.success) {
+        return res.status(200).json({
+            success: true,
+            message: result.message,
+        });
+    } else {
+        return res.status(500).json({
+            success: false,
+            error: result.message || 'Failed to update party',
+        });
+    }
 });
 
 
@@ -391,6 +456,26 @@ const result = await ecService.UpdateCandidateService.updateCandidate(candidateI
         res.status(500).json({
             success: false,            
             error: result.message || 'Failed to update candidate',
+        });
+    }
+});
+
+// GET /api/ec/ballot-statistics - Get ballot statistics by constituency
+router.get('/ballot-statistics', async (req: Request, res: Response) => {
+    try {
+        console.log('Fetching ballot statistics by constituency');
+        const stats = await EC.getBallotStatisticsByConstituency();
+        
+        res.status(200).json({
+            success: true,
+            data: stats,
+        });
+    } catch (error) {
+        console.error('Error fetching ballot statistics:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch ballot statistics',
+            message: getErrorMessage(error),
         });
     }
 });

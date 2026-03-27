@@ -13,11 +13,11 @@ router.post('/vote', async (req: Request, res: Response) => {
   try {
     const { userId, candidateId, constituencyId } = req.body || {};
 
-    // Validate required fields
-    if (!userId || !candidateId || !constituencyId) {
+    // Validate required fields (candidateId can be null for abstain votes)
+    if (!userId || candidateId === undefined || !constituencyId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: userId, candidateId, constituencyId',
+        error: 'Missing required fields: userId, candidateId (null for abstain), constituencyId',
       });
     }
 

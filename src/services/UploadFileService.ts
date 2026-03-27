@@ -29,19 +29,18 @@ export async function uploadFile(bucket: string, filePath: string, file: Express
 
 
 
-
     console.log('S3 Params:', JSON.stringify({...params, Body: '[Buffer]'}));
 
     try {
         console.log('Sending PutObjectCommand to S3...');
         const data = await s3Client.send(new PutObjectCommand(params));
-        console.log('✅ File uploaded successfully:', data);
+        console.log('File uploaded successfully:', data);
         return saltedFilePath;
         
 
 
     } catch (error: any) {
-        console.error('❌ Error uploading file:', error);
+        console.error('Error uploading file:', error);
         console.error('Error Code:', error.Code);
         console.error('Error Message:', error.message);
         console.error('Error Details:', JSON.stringify(error, null, 2));

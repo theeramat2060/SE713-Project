@@ -11,19 +11,25 @@ const logECStaffEvent = (event: string, data: Record<string, any>) => {
 
 //close and open voting for a constituency
 export class CloseVotingService {
-    static async closeVoting(isClosed: boolean): Promise<{ success: boolean }> {
-    logECStaffEvent('POST_CLOSE_VOTE', {});
-    const result = await publicService.getAllConstituencies();
-    if (result && result.length > 0) {
-        for (let i = 0; i < result.length; i++) {
-            await EC.closeVotingForConstituency(result[i].id, isClosed);
-        }
+    static async closeVoting(isClosed: boolean): Promise<{ success: boolean; error?: { message: string } }> {
+    logECStaffEvent('POST_CLOSE_VOTE', { isClosed });
+    try {
+        console.log(`🔄 Starting batch update of all constituencies to isClosed=${isClosed}`);
+        
+        // Batch update all constituencies in a single query for better performance
+        const updateResult = await EC.updateAllConstituenciesVotingStatus(isClosed);
+        
+        console.log(`✅ Successfully updated ${updateResult.count} constituencies in batch`);
         return {
             success: true,
         };
-
-    }else {
-        throw new Error('Failed to retrieve constituencies');
+    } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error during voting status update';
+        console.error(`❌ Error in closeVoting: ${errorMsg}`, error);
+        return {
+            success: false,
+            error: { message: errorMsg }
+        };
     }
 }
 };
@@ -175,6 +181,29 @@ export class CreatePartyService {
         }
     }
 }   
+
+export class UpdatePartyService {
+    static async updateParty(id: number, name: string, logo_url: string, policy: string): Promise<{ success: boolean; message: string }> {
+        try {
+            console.log('UpdatePartyService.updateParty called with:', { id, name, logo_url, policy });
+            
+            await EC.UpdateParty(id, name, logo_url, policy);
+            
+            console.log('✅ Party update executed successfully for ID:', id);
+            
+            return {
+                success: true,
+                message: 'Party updated successfully',
+            };
+        } catch (error) {
+            console.error('❌ Error updating party:', error);
+            return {
+                success: false,
+                message: 'Failed to update party',
+            };
+        }
+    }
+}
 
 export class GetAllCandidatesService {
     static async getAllCandidates(page: number = 1, pageSize: number = 10, search?: string, partyId?: number, constituencyId?: number): Promise<{ success: boolean; data?: any[]; pagination?: { page: number; pageSize: number; total: number; totalPages: number }; error?: string }> {

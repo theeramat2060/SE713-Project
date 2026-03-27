@@ -49,6 +49,61 @@ export const getAllParties = async (): Promise<ServiceResult<PartyResponse[]>> =
         data: parties,
     };
 };
+
+export const getElectionResults = async (): Promise<ServiceResult<any[]>> => {
+    logPublicEvent('GET_ELECTION_RESULTS', {});
+    try {
+        const constituencies = await constituencyRepository.getClosedConstituencies();
+        const results = [];
+
+        for (let i = 0; i < constituencies.length; i++) {
+            const constituency = constituencies[i];
+            const candidates = constituency.candidates;
+
+            if (!candidates || candidates.length === 0) continue;
+
+            let winner = candidates[0];
+            for (let j = 1; j < candidates.length; j++) {
+                if (candidates[j].vote_count > winner.vote_count) {
+                    winner = candidates[j];
+                }
+            }
+
+            results.push({
+                id: constituency.id,
+                province: constituency.province,
+                district_number: constituency.district_number,
+                total_votes: constituency.total_votes,
+                winner: {
+                    id: winner.id,
+                    title: winner.title,
+                    first_name: winner.first_name,
+                    last_name: winner.last_name,
+                    number: winner.number,
+                    party_name: winner.party_name,
+                    party_logo_url: winner.party_logo_url,
+                    image_url: winner.image_url,
+                    vote_count: winner.vote_count,
+                }
+            });
+        }
+
+        return {
+            success: true,
+            data: results,
+        };
+    } catch (error) {
+        console.error('Error fetching election results:', error);
+        return {
+            success: false,
+            error: {
+                message: 'Failed to fetch election results',
+                code: 500,
+            },
+        };
+    }
+};
+
 export const getParties = async (id: number): Promise<ServiceResult<PartyDetailsResponse>> => {
     logPublicEvent('GET_PARTY_DETAILS', { id });
     const party = await partyRepository.findPartyById(id);

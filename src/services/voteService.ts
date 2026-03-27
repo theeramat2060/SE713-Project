@@ -6,9 +6,30 @@ import * as userRepository from "../repositories/userRepository";
 export class VoteService {
   async createVote(
     userId: string,
-    candidateId: number,
+    candidateId: number | null,
     constituencyId: number,
   ) {
+    // Handle abstain votes (candidateId is null)
+    if (candidateId === null) {
+      // For abstain votes, just record the vote without candidate
+      const vote = await voteRepository.addVote(
+        userId,
+        null as any, // null candidateId for abstain
+        constituencyId,
+      );
+
+      return {
+        success: true,
+        data: {
+          userId: vote.user_id,
+          candidateId: vote.candidate_id,
+          timestamp: vote.updated_at || vote.created_at,
+          message: 'Abstain vote recorded successfully',
+        },
+      };
+    }
+
+    // For normal candidate votes
     const candidate = await candidateRepository.getCandidateById(candidateId);
     if (!candidate) {
       return {
