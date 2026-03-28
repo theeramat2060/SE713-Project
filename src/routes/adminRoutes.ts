@@ -563,4 +563,25 @@ router.patch('/users/:id', async (req: Request, res: Response) => {
     }
 });
 
+// DELETE /api/admin/users/:id - Delete user
+router.delete('/users/:id', async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        // @ts-ignore - TypeScript issue with req.params typing
+        const result = await adminService.DeleteUserService.deleteUser(id);
+
+        res.status(200).json({
+            success: true,
+            message: result.message,
+        });
+    } catch (err) {
+        const error = err as AppError;
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Failed to delete user',
+        });
+    }
+});
+
 export default router;

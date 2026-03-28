@@ -32,7 +32,6 @@ export const getAdminById = async (id: number): Promise<Admin | null> => {
 
 export const updateUserRole = async (userId: string, newRole: string): Promise<void> => {
     try {
-        // When promoting a voter to EC staff, we need to create an ECStaff record
         // Get the user first
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -76,9 +75,22 @@ export const updateUserRole = async (userId: string, newRole: string): Promise<v
                     status: 'ACTIVE',
                 },
             });
+        }
+        // If demoting from EC to VOTER, delete the ECStaff record
+        else if (newRole === 'VOTER') {
+            // Find and delete the ECStaff record for this user
+            const ecStaff = await prisma.eCStaff.findUnique({
+                where: { national_id: user.national_id },
+            });
 
-            // Optionally delete the user from Voter table or mark as inactive
-            // For now, we'll keep the user record but they are now EC staff
+            if (!ecStaff) {
+                throw new Error('EC staff record not found');
+            }
+
+            // Delete the ECStaff record
+            await prisma.eCStaff.delete({
+                where: { national_id: user.national_id },
+            });
         }
     } catch (error) {
         console.error('[updateUserRole] Error:', error);
@@ -292,17 +304,24 @@ export const getAllUsers = async (
 
             const ecStaffCount = await prisma.eCStaff.count();
 
-            const users = ecStaff.map((staff: any) => ({
-                id: staff.id,
-                nationalId: staff.national_id,
-                title: staff.title,
-                firstName: staff.first_name,
-                lastName: staff.last_name,
-                address: '', // ECStaff doesn't have address in schema
-                role: 'EC',
-                constituency: null, // TODO: get from constituency_id if available
-                lastLogin: null,
-                createdAt: staff.id, // Use id as created_at substitute
+            // For each ECStaff, find the corresponding User to get the correct user ID
+            const users = await Promise.all(ecStaff.map(async (staff: any) => {
+                const user = await prisma.user.findUnique({
+                    where: { national_id: staff.national_id },
+                });
+                
+                return {
+                    id: user?.id || staff.id, // Use User ID if found, fallback to ECStaff ID
+                    nationalId: staff.national_id,
+                    title: staff.title,
+                    firstName: staff.first_name,
+                    lastName: staff.last_name,
+                    address: '', // ECStaff doesn't have address in schema
+                    role: 'EC',
+                    constituency: null, // TODO: get from constituency_id if available
+                    lastLogin: null,
+                    createdAt: staff.id, // Use id as created_at substitute
+                };
             }));
 
             return {
@@ -618,6 +637,43 @@ export const updateUserDetails = async (
         };
     } catch (error) {
         console.error('[updateUserDetails] Error:', error);
+        throw error;
+    }
+};
+
+export const deleteUser = async (userId: string): Promise<any> => {
+    try {
+        // Find the user first
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // If user has ECStaff record, delete it first
+        const ecStaff = await prisma.eCStaff.findUnique({
+            where: { national_id: user.national_id },
+        });
+
+        if (ecStaff) {
+            await prisma.eCStaff.delete({
+                where: { national_id: user.national_id },
+            });
+        }
+
+        // Delete the user
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        return {
+            success: true,
+            message: `User ${user.first_name} ${user.last_name} deleted successfully`,
+        };
+    } catch (error) {
+        console.error('[deleteUser] Error:', error);
         throw error;
     }
 };
