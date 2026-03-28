@@ -9,7 +9,6 @@ import {
     validateAdminLogin
 } from '../middlewares/validators/authValidator';
 import { withAdmin } from '../middlewares/authMiddleware';
-import { authLimiter } from '../middlewares/rateLimitMiddleware';
 
 const router = Router();
 
@@ -80,7 +79,7 @@ router.get('/me', async (req: Request, res: Response) => {
 
 
 // User registration
-router.post('/register', authLimiter, validateUserRegistration, async (req: Request, res: Response) => {
+router.post('/register', validateUserRegistration, async (req: Request, res: Response) => {
     const data: RegisterUserRequest = req.body;
 
     const result = await authService.registerUser(data);
@@ -108,7 +107,7 @@ router.post('/register', authLimiter, validateUserRegistration, async (req: Requ
 });
 
 // User login
-router.post('/login', authLimiter, validateUserLogin, async (req: Request, res: Response) => {
+router.post('/login', validateUserLogin, async (req: Request, res: Response) => {
     const data: LoginUserRequest = req.body;
 
     const result = await authService.loginUser(data);
@@ -136,7 +135,7 @@ router.post('/login', authLimiter, validateUserLogin, async (req: Request, res: 
 });
 
 // Admin registration
-router.post('/admin/register', authLimiter, validateAdminRegistration, withAdmin(async (req: Request, res: Response, admin: any) => {
+router.post('/admin/register', validateAdminRegistration, withAdmin(async (req: Request, res: Response, admin: any) => {
     const data: RegisterAdminRequest = req.body;
 
     const result = await authService.registerAdmin(data);
@@ -162,7 +161,7 @@ router.post('/admin/register', authLimiter, validateAdminRegistration, withAdmin
 }));
 
 // Admin login
-router.post('/admin/login', authLimiter, validateAdminLogin, async (req: Request, res: Response) => {
+router.post('/admin/login', validateAdminLogin, async (req: Request, res: Response) => {
     const data: LoginAdminRequest = req.body;
 
     const result = await authService.loginAdmin(data);

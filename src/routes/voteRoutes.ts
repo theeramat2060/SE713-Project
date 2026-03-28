@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { VoteService } from '../services/voteService';
-import { votingLimiter } from '../middlewares/rateLimitMiddleware';
 
 interface AppError extends Error {
     message: string;
@@ -10,7 +9,7 @@ const router = Router();
 const voteService = new VoteService();
 
 // POST /api/election/vote
-router.post('/vote', votingLimiter, async (req: Request, res: Response) => {
+router.post('/vote', async (req: Request, res: Response) => {
   try {
     const { userId, candidateId, constituencyId } = req.body || {};
 
