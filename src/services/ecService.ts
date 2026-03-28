@@ -138,27 +138,33 @@ export class GetPartyBasicInfoService {
 export class DeletePartyService {
     static async deleteParty(id: number): Promise<{ success: boolean; message: string }> {
         try {
-            // delete candidates associated with the party first to maintain referential integrity
-           for (let i = 0; i < 100; i++) { // arbitrary limit to prevent infinite loop in case of unexpected issues
-                const candidates = await EC.getCandidatesByPartyId(id);
-                if (candidates.length === 0) {
-                    break; // no more candidates to delete
-                }
-                for (const candidate of candidates) {
-                    await EC.deleteCandidate(candidate.id);
-                }
+            console.log(`[DeletePartyService] Deleting party ${id}...`);
+            
+            // Get all candidate IDs for this party (without S3 calls)
+            console.log(`[DeletePartyService] Getting candidate IDs...`);
+            const candidateIds = await EC.getCandidateIdsByPartyId(id);
+            console.log(`[DeletePartyService] Found ${candidateIds.length} candidates for party ${id}`);
+            
+            // Delete each candidate (which will delete associated votes)
+            console.log(`[DeletePartyService] Starting candidate deletion...`);
+            for (let i = 0; i < candidateIds.length; i++) {
+                console.log(`[DeletePartyService] Deleting candidate ${i+1}/${candidateIds.length}`);
+                await EC.deleteCandidate(candidateIds[i]);
             }
-            // then delete the party itself
+            
+            // Then delete the party itself
+            console.log(`[DeletePartyService] Deleting party record...`);
             await EC.deleteParty(id);
+            console.log(`[DeletePartyService] Party deleted successfully`);
             return {
                 success: true,
                 message: 'Party deleted successfully',
             };
         } catch (error) {
-            console.error('Error deleting party:', error);
+            console.error('[DeletePartyService] Error deleting party:', error);
             return {
                 success: false,
-                message: 'Failed to delete party',
+                message: error instanceof Error ? error.message : 'Failed to delete party',
             };
         }
     }

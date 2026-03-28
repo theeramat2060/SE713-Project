@@ -4,7 +4,7 @@ import { supabase } from "../config/supabase";
 import { config } from "../config/env";
 import { getPresignedUrl } from "../services/UploadFileService";
 
-// Helper function to convert file key to full signed S3 URL
+// convert file key to full signed S3 URL
 export const getFullS3Url = async (fileKey: string | null): Promise<string | null> => {
     if (!fileKey) {
         console.log(' getFullS3Url called with null/empty key');
@@ -19,7 +19,6 @@ export const getFullS3Url = async (fileKey: string | null): Promise<string | nul
     try {
 
         // Use AWS SDK to generate signed URL (works with Supabase S3-compatible storage)
-        // TTL: 86400 seconds = 24 hours (sufficient for election system)
         const signedUrl = await getPresignedUrl('election-bucket', fileKey, 86400);
         
         console.log('Signed URL created successfully');
@@ -220,21 +219,20 @@ export const getElectionStats = async () => {
 };
 
 export const deleteParty = async (id: number): Promise<void> => {
-    await prisma.party.delete({
-        where: { id }
-    });
+    try {
+        await prisma.party.delete({
+            where: { id }
+        });
+    } catch (error: any) {
+        // If party doesn't exist, throw a meaningful error
+        if (error.code === 'P2025') {
+            throw new Error(`Party with ID ${id} not found`);
+        }
+        throw error;
+    }
 };
 
 export const getCandidatesByPartyId = async (partyId: number): Promise<any[]> => {
-    // const result = await prisma.$queryRaw<any[]>`
-    //     SELECT c.id, c.title, c.first_name, c.last_name, c.number, c.image_url,
-    //         con.province, con.district_number
-    //     FROM "Candidate" c
-    //     JOIN "Constituency" con ON c.constituency_id = con.id
-    //     WHERE c.party_id = ${partyId}
-    //     ORDER BY con.province, con.district_number
-    // `;
-    // return result ?? [];
     const result = await prisma.candidate.findMany({
         where: {
             party_id: partyId,
@@ -255,12 +253,10 @@ export const getCandidatesByPartyId = async (partyId: number): Promise<any[]> =>
                 },
             },
         },
-        orderBy: {
-            Constituency: {
-                province: 'asc',
-                district_number: 'asc',
-            },
-        },
+        orderBy: [
+            { Constituency: { province: 'asc' } },
+            { Constituency: { district_number: 'asc' } },
+        ],
     });
     const promises = result.map(async (candidate) => ({
         id: candidate.id,
@@ -278,11 +274,25 @@ export const getCandidatesByPartyId = async (partyId: number): Promise<any[]> =>
     return Promise.all(promises) as unknown as any[];
 };
 
+export const getCandidateIdsByPartyId = async (partyId: number): Promise<number[]> => {
+    const candidates = await prisma.candidate.findMany({
+        where: {
+            party_id: partyId,
+        },
+        select: {
+            id: true,
+        },
+    });
+    return candidates.map(c => c.id);
+};
+
 export const deleteCandidate = async (id: number): Promise<void> => {
-    // await prisma.$queryRaw`
-    //     DELETE FROM "Candidate"
-    //     WHERE id = ${id}
-    // `;
+    // First delete all votes for this candidate (foreign key constraint)
+    await prisma.vote.deleteMany({
+        where: { candidate_id: id }
+    });
+    
+    // Then delete the candidate
     await prisma.candidate.delete({
         where: { id }
     });

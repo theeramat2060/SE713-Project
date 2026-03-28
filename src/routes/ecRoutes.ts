@@ -288,25 +288,34 @@ const result = await ecService.CreatePartyService.createParty(data.name, data.lo
 });
 
 router.delete('/delete-party/:id', async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id as string) || req.body.id;
-    if (!id) {
-        return res.status(400).json({
-            success: false,
-            error: 'Party ID is required',
-        });
-    }
-    const result = await ecService.DeletePartyService.deleteParty(id);
-    if (result.success) {
-        return res.status(200).json({
-            success: true,
-            message: 'Party deleted successfully',
-        });
-    } else {
+    try {
+        const id = parseInt(req.params.id as string) || req.body.id;
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: 'Party ID is required',
+            });
+        }
+        console.log(`[DELETE /delete-party/:id] Deleting party ${id}`);
+        const result = await ecService.DeletePartyService.deleteParty(id);
+        if (result.success) {
+            return res.status(200).json({
+                success: true,
+                message: 'Party deleted successfully',
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                error: result.message || 'Failed to delete party',
+            });
+        }
+    } catch (error: any) {
+        console.error(`[DELETE /delete-party/:id] Error:`, error);
         return res.status(500).json({
             success: false,
-            error: result.message || 'Failed to delete party',
+            error: error.message || 'Failed to delete party',
         });
-    }  
+    }
 });
 
 router.put('/update-party/:id', upload.single('logo'), async (req: any, res: Response) => {
