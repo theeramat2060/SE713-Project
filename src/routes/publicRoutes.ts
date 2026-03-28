@@ -112,6 +112,23 @@ router.get('/party-overview', async (req: Request, res: Response) => {
     });
 });
 
+// Get all constituencies with candidates (vote count hidden for open ballots)
+router.get('/constituencies-with-candidates', async (req: Request, res: Response) => {
+    const result = await publicService.getPublicConstituenciesWithCandidates();
+    
+    if (!result.success) {
+        return res.status(result.error?.code || 500).json({
+            success: false,
+            error: result.error?.message || 'Internal server error',
+        });
+    }
+    
+    res.status(200).json({
+        success: true,
+        data: result.data,
+    });
+});
+
 // Get election results (public version of declare-results)
 router.get('/results', async (req: Request, res: Response) => {
     const result = await publicService.getElectionResults();

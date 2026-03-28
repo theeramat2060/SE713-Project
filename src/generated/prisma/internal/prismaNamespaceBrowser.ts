@@ -59,7 +59,8 @@ export const ModelName = {
   Party: 'Party',
   User: 'User',
   Vote: 'Vote',
-  ECStaff: 'ECStaff'
+  ECStaff: 'ECStaff',
+  AuditLog: 'AuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -183,6 +184,20 @@ export const ECStaffScalarFieldEnum = {
 } as const
 
 export type ECStaffScalarFieldEnum = (typeof ECStaffScalarFieldEnum)[keyof typeof ECStaffScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  entity: 'entity',
+  entity_id: 'entity_id',
+  user_id: 'user_id',
+  details: 'details',
+  ip_address: 'ip_address',
+  created_at: 'created_at'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -126,6 +126,22 @@ model ECStaff {
   @@index([status], map: "idx_ecstaff_status")
 }
 
+model AuditLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  action    String   @db.VarChar(255)
+  entity    String   @db.VarChar(255)
+  entity_id String?  @db.VarChar(255)
+  user_id   String?  @db.Uuid
+  details   String?  @db.Text
+  ip_address String? @db.VarChar(45)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([action], map: "idx_audit_action")
+  @@index([entity], map: "idx_audit_entity")
+  @@index([user_id], map: "idx_audit_user_id")
+  @@index([created_at], map: "idx_audit_created_at")
+}
+
 enum user_role {
   VOTER
 }

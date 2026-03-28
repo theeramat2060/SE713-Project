@@ -82,3 +82,8 @@ export type Vote = Prisma.VoteModel
  * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */
 export type ECStaff = Prisma.ECStaffModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel

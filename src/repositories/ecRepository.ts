@@ -13,15 +13,14 @@ export const getFullS3Url = async (fileKey: string | null): Promise<string | nul
     
     // If it's already a full URL, return as is
     if (fileKey.startsWith('http://') || fileKey.startsWith('https://')) {
-        console.log('Already full URL:', fileKey.substring(0, 50) + '...');
         return fileKey;
     }
     
     try {
-        console.log('🔄 Creating signed URL for:', fileKey);
-        
+
         // Use AWS SDK to generate signed URL (works with Supabase S3-compatible storage)
-        const signedUrl = await getPresignedUrl('election-bucket', fileKey, 3600);
+        // TTL: 86400 seconds = 24 hours (sufficient for election system)
+        const signedUrl = await getPresignedUrl('election-bucket', fileKey, 86400);
         
         console.log('Signed URL created successfully');
         return signedUrl;

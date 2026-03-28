@@ -1,7 +1,14 @@
 import express, { Request, Response } from 'express';
-import * as adminService from '../services/adminService';
 import * as adminRepo from '../repositories/adminRepository';
 
+interface ServiceResult<T> {
+    success: boolean;
+    error?: {
+        code: number;
+        message: string;
+    };
+    data?: T;
+}
 
 export class ChangeUserRoleService {
     static async changeUserRole(userId: string, newRole: string): Promise<{ success: boolean }> {
@@ -9,7 +16,7 @@ export class ChangeUserRoleService {
         if (!validRoles.includes(newRole)) {
             throw new Error(`Invalid role: ${newRole}. Valid roles are: ${validRoles.join(', ')}`);
         }
-        const user = await adminRepo.updateUserRole(parseInt(userId), newRole);
+        await adminRepo.updateUserRole(userId, newRole);
         
         return {
             success: true,
@@ -17,18 +24,75 @@ export class ChangeUserRoleService {
     }
 }
 
-export class AddConstituencyService {
-    static async addConstituency(data: any): Promise<{ success: boolean; message: string; data: any }> {
-    const result = await adminRepo.addConstituency(data);
-        console.log(`Adding constituency: ${data.province} ${data.district_number}`);
-        if (result) {
+export class ListDistrictsService {
+    static async getDistricts(
+        page: number,
+        pageSize: number,
+        search?: string
+    ): Promise<ServiceResult<any>> {
+        try {
+            const result = await adminRepo.getDistricts(page, pageSize, search);
             return {
                 success: true,
-                message: `Constituency ${data.district_number} of ${data.province} added successfully`,
                 data: result,
             };
-        } else {
-            throw new Error('Failed to add constituency');
+        } catch (error) {
+            return {
+                success: false,
+                error: {
+                    message: error instanceof Error ? error.message : 'Failed to fetch districts',
+                    code: 400,
+                },
+            };
+        }
+    }
+}
+
+export class GetDistrictService {
+    static async getDistrict(id: number): Promise<ServiceResult<any>> {
+        try {
+            const result = await adminRepo.getDistrictById(id);
+            if (!result) {
+                return {
+                    success: false,
+                    error: {
+                        message: 'District not found',
+                        code: 404,
+                    },
+                };
+            }
+            return {
+                success: true,
+                data: result,
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: {
+                    message: error instanceof Error ? error.message : 'Failed to fetch district',
+                    code: 400,
+                },
+            };
+        }
+    }
+}
+
+export class AddConstituencyService {
+    static async addConstituency(data: any): Promise<{ success: boolean; message: string; data: any }> {
+        try {
+            const result = await adminRepo.addConstituency(data);
+            console.log(`Adding constituency: ${data.province} ${data.district_number}`);
+            if (result) {
+                return {
+                    success: true,
+                    message: `เขต ${data.district_number} ของจังหวัด ${data.province} เพิ่มเติมเรียบร้อยแล้ว`,
+                    data: result,
+                };
+            } else {
+                throw new Error('ไม่สามารถเพิ่มเขตได้');
+            }
+        } catch (error) {
+            throw error;
         }
     }
 }
@@ -56,6 +120,79 @@ export class CreateNewUserService {
             };
         } else {
             throw new Error('Failed to create admin user');
+        }
+    }
+}
+export class ListUsersService {
+    static async getAllUsers(
+        page: number = 1,
+        pageSize: number = 10,
+        role?: string,
+        search?: string
+    ): Promise<any> {
+        try {
+            const result = await adminRepo.getAllUsers(page, pageSize, role, search);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+}
+
+export class GetUserService {
+    static async getUser(id: string): Promise<{ success: boolean; error?: { code: number; message: string }; data?: any }> {
+        try {
+            const result = await adminRepo.getUserById(id);
+            if (!result) {
+                return {
+                    success: false,
+                    error: {
+                        code: 404,
+                        message: 'User not found',
+                    },
+                };
+            }
+            return {
+                success: true,
+                data: result,
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: {
+                    code: 500,
+                    message: error instanceof Error ? error.message : 'Failed to fetch user',
+                },
+            };
+        }
+    }
+}
+
+export class CreateUserService {
+    static async createUser(data: any): Promise<any> {
+        try {
+            const result = await adminRepo.createUserWithRole(data);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+}
+
+export class UpdateUserDetailsService {
+    static async updateUser(
+        userId: string,
+        data: {
+            firstName?: string;
+            lastName?: string;
+            address?: string;
+        }
+    ): Promise<any> {
+        try {
+            const result = await adminRepo.updateUserDetails(userId, data);
+            return result;
+        } catch (error) {
+            throw error;
         }
     }
 }

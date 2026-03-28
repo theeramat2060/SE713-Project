@@ -142,6 +142,26 @@ export const getParties = async (id: number): Promise<ServiceResult<PartyDetails
     };
 };
 
+export const getPublicConstituenciesWithCandidates = async (): Promise<ServiceResult<any[]>> => {
+    logPublicEvent('GET_PUBLIC_CONSTITUENCIES_WITH_CANDIDATES', {});
+    try {
+        const constituencies = await constituencyRepository.getAllConstituenciesWithCandidates();
+        return {
+            success: true,
+            data: constituencies,
+        };
+    } catch (error) {
+        console.error('Error fetching constituencies with candidates:', error);
+        return {
+            success: false,
+            error: {
+                message: 'Failed to fetch constituencies with candidates',
+                code: 500,
+            },
+        };
+    }
+};
+
 export const getPartyOverview = async (): Promise<ServiceResult<PartyOverviewResponse>> => {
     const closedConstituencies = await constituencyRepository.getClosedConstituencies();
     const parties: any[] = [];

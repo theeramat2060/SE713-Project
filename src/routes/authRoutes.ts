@@ -8,6 +8,8 @@ import {
     validateAdminRegistration,
     validateAdminLogin
 } from '../middlewares/validators/authValidator';
+import { withAdmin } from '../middlewares/authMiddleware';
+import { authLimiter } from '../middlewares/rateLimitMiddleware';
 
 const router = Router();
 
@@ -78,7 +80,7 @@ router.get('/me', async (req: Request, res: Response) => {
 
 
 // User registration
-router.post('/register', validateUserRegistration, async (req: Request, res: Response) => {
+router.post('/register', authLimiter, validateUserRegistration, async (req: Request, res: Response) => {
     const data: RegisterUserRequest = req.body;
 
     const result = await authService.registerUser(data);
@@ -106,7 +108,7 @@ router.post('/register', validateUserRegistration, async (req: Request, res: Res
 });
 
 // User login
-router.post('/login', validateUserLogin, async (req: Request, res: Response) => {
+router.post('/login', authLimiter, validateUserLogin, async (req: Request, res: Response) => {
     const data: LoginUserRequest = req.body;
 
     const result = await authService.loginUser(data);
@@ -134,17 +136,18 @@ router.post('/login', validateUserLogin, async (req: Request, res: Response) => 
 });
 
 // Admin registration
-router.post('/admin/register', validateAdminRegistration, async (req: Request, res: Response) => {
+router.post('/admin/register', authLimiter, validateAdminRegistration, withAdmin(async (req: Request, res: Response, admin: any) => {
     const data: RegisterAdminRequest = req.body;
 
     const result = await authService.registerAdmin(data);
 
     if (!result.success) {
         const statusCode = result.error?.code || 500;
-        return res.status(statusCode).json({
+        res.status(statusCode).json({
             success: false,
             error: result.error?.message || 'Admin registration failed',
         } as AuthApiResponse);
+        return;
     }
 
     res.status(201).json({
@@ -156,10 +159,10 @@ router.post('/admin/register', validateAdminRegistration, async (req: Request, r
             role: 'ADMIN',
         } : undefined,
     } as AuthApiResponse);
-});
+}));
 
 // Admin login
-router.post('/admin/login', validateAdminLogin, async (req: Request, res: Response) => {
+router.post('/admin/login', authLimiter, validateAdminLogin, async (req: Request, res: Response) => {
     const data: LoginAdminRequest = req.body;
 
     const result = await authService.loginAdmin(data);
